@@ -27,6 +27,6 @@ jobs:
       
     - name: Run Tests
       env:
-        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         DEBUG: "False"
       run: python manage.py test
