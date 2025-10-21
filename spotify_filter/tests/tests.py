@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import json
 
 from spotify_filter.tasks import import_spotify_data_task
@@ -273,18 +273,13 @@ class ImportSpotifyTests(TestCase):
         with open("spotify_filter/tests/data/artists2.json") as f:
             cls.two_artists = json.load(f)
 
-    @patch("spotify_filter.spotify_import.api.SpotifyImporter.retrieve_artists_by_id")
-    @patch("spotify_filter.spotify_import.api.SpotifyImporter.retrieve_albums")
-    def test_import_from_spotify_success(
-        self,
-        mock_retrieve_albums,
-        mock_retrieve_artists_by_id,
-    ):
+    def test_import_from_spotify_success(self):
         """Test that the import_from_spotify correctly imports data."""
-        mock_retrieve_albums.return_value = self.two_albums
-        mock_retrieve_artists_by_id.return_value = self.two_artists
+        mock_importer = MagicMock()
+        mock_importer.retrieve_albums.return_value = self.two_albums
+        mock_importer.retrieve_artists_by_id.return_value = self.two_artists
 
-        import_from_spotify()
+        import_from_spotify(mock_importer)
 
         assert Album.objects.count() == 2
         assert Artist.objects.count() == 2
