@@ -6,6 +6,7 @@ import json
 from spotify_filter.tasks import import_spotify_data_task
 from spotify_filter.models import Album, Artist, Genre, Track, AlbumTrack
 from spotify_filter.spotify_import.import_logic import import_from_spotify
+from spotify_filter.filters import DashboardFilter
 
 
 class AlbumModelTests(TestCase):
@@ -286,9 +287,31 @@ class ImportSpotifyTests(TestCase):
         assert Track.objects.count() == 25
         assert AlbumTrack.objects.count() == 25
 
+    @patch("spotify_filter.tasks.import_from_spotify")
+    def test_celery_task_runs(self, mock_import):
+        """Test that the import_spotify_data_task calls the import function."""
+        import_spotify_data_task()
+        mock_import.assert_called_once()
 
-@patch("spotify_filter.tasks.import_from_spotify")
-def test_celery_task_runs(mock_import):
-    """Test that the import_spotify_data_task calls the import function."""
-    import_spotify_data_task()
-    mock_import.assert_called_once()
+
+class FilterTests(TestCase):
+    def test_genre_filter_and_logic(self):
+        indie = Genre.objects.create(name="indie Rock")
+        experimental = Genre.objects.create(name="experimental")
+        jazz = Genre.objects.create(name="jazz")
+
+        artist1 = Artist.objects.create(spotify_id="01", name="Artist 1")
+        artist1.genres.add(indie, experimental)
+
+        artist2 = Artist.objects.create(spotify_id="02", name="Artist 2")
+        artist2.genres.add(indie)
+
+        artist3 = Artist.objects.create(spotify_id="03", name="Artist 3")
+        artist3.genres.add(jazz)
+
+        # Should return only Artist 1, because only they have *both* genres
+        filterset = DashboardFilter(data={"genre_name": "indie, experimental"})
+        results = filterset.qs
+
+        print(results)
+        assert list(results) == [artist1]
