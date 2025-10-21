@@ -1,9 +1,10 @@
 from django.utils.html import format_html_join, format_html
 from django.urls import reverse
 import django_tables2 as tables
-from django_filters import FilterSet
+from django_filters import FilterSet, CharFilter, ModelChoiceFilter, OrderingFilter
+from django.db.models import Q
 
-from .models import Artist
+from .models import Artist, Album
 
 
 class ArtistTable(tables.Table):
@@ -42,7 +43,32 @@ class ArtistTable(tables.Table):
         return ", ".join([genre.name for genre in genres])
 
 
-class ArtistFilter(FilterSet):
+class DashboardFilter(FilterSet):
+    artist_name = CharFilter(
+        field_name="name", lookup_expr="icontains", label="Artist", distinct=True
+    )
+    album_name = CharFilter(
+        field_name="albums__title",
+        lookup_expr="icontains",
+        label="Album",
+        distinct=True,
+    )
+    genre_name = CharFilter(method="filter_by_genre", label="Genres", distinct=True)
+
     class Meta:
         model = Artist
-        fields = {"name": ["exact"], "genres": ["exact"]}
+        fields = ["artist_name", "album_name", "genre_name"]
+
+    def filter_by_genre(self, queryset, name, value):
+        """Allow filtering of multiple comma- or space-separated genre keywords"""
+        # separate the keywords to a list
+        keywords = [v.strip() for v in value.replace(",", " ").split() if v.strip()]
+        # if no keywords, return whole queryset
+        if not keywords:
+            return queryset
+
+        # go through the keywords and filter them out one by one
+        for kw in keywords:
+            queryset = queryset.filter(genres__name__icontains=kw)
+
+        return queryset.distinct()

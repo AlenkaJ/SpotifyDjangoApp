@@ -7,7 +7,7 @@ from django_tables2.views import SingleTableMixin
 from django_filters.views import FilterView
 
 from .models import Artist, Album
-from .tables import ArtistTable, ArtistFilter
+from .tables import ArtistTable, DashboardFilter
 from .tasks import import_spotify_data_task
 
 
@@ -28,7 +28,7 @@ class DashboardView(SingleTableMixin, FilterView):
     table_class = ArtistTable
     template_name = "spotify_filter/dashboard.html"
     context_object_name = "artist_list"
-    filterset_class = ArtistFilter
+    filterset_class = DashboardFilter
 
     def get_queryset(self):
         return Artist.objects.all()
