@@ -10,13 +10,6 @@ a:hover, a:active {
   color:tomato;
 }
 
-div {
-  margin: auto;
-  width:fit-content;
-  border: 2px solid white;
-  padding: 30px;
-}
-
 body {
   margin: 10px;
   font-size: 15px;

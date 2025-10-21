@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     {% load static %}
+    <link rel="stylesheet" href="{% static 'spotify_filter/detail_styles.css' %}">
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
  </head>
 <body>
@@ -26,6 +27,12 @@
     {% endfor %}
 </ul>
 {% endif %}
+
+<p>Listen on Spotify: <a href="https://open.spotify.com/artist/{{ artist.spotify_id }}" target="_blank">Artist's page</a></p>
+{% if artist.image %}
+  <img src="{{ artist.image }}" alt="Artist Image" width="640" height="640"/>
+{% endif %}
+
 </div>
 
 <h3><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h3>

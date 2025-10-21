@@ -1,12 +1,12 @@
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
 from django.views import generic
-from django_tables2 import SingleTableView
+from django_tables2.views import SingleTableMixin
+from django_filters.views import FilterView
 
 from .models import Artist, Album
 from .tables import ArtistTable
+from .filters import DashboardFilter
 from .tasks import import_spotify_data_task
 
 
@@ -22,11 +22,12 @@ def importing(request):
     return render(request, "spotify_filter/importing.html")
 
 
-class DashboardView(SingleTableView):
+class DashboardView(SingleTableMixin, FilterView):
     model = Artist
     table_class = ArtistTable
     template_name = "spotify_filter/dashboard.html"
     context_object_name = "artist_list"
+    filterset_class = DashboardFilter
 
     def get_queryset(self):
         return Artist.objects.all()

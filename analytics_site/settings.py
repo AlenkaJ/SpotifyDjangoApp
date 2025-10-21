@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "debug_toolbar",
     "django_tables2",
+    "bootstrap3",
     "spotify_filter.apps.SpotifyFilterConfig",
     "polls.apps.PollsConfig",
     "django.contrib.admin",
