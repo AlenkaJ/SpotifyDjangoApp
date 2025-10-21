@@ -41,7 +41,10 @@ def import_from_spotify(importer=None):
         # create each artist if they don't exist and link to album
         for artist_data in album_data["artists"]:
             artist_obj, artist_created = Artist.objects.get_or_create(
-                spotify_id=artist_data["id"], name=artist_data["name"]
+                spotify_id=artist_data["id"],
+                defaults={
+                    "name": artist_data["name"],
+                },
             )
             album_obj.artists.add(artist_obj)
         album_obj.save()
@@ -64,10 +67,14 @@ def import_from_spotify(importer=None):
                 },
             )
 
-    # retrieve genres for all artists
+    # retrieve genres and images for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))
     for id, artist_data in zip(artist_ids, importer.retrieve_artists_by_id(artist_ids)):
         artist_obj = Artist.objects.get(spotify_id=id)
+        artist_obj.image = (
+            artist_data["images"][0]["url"] if artist_data["images"] else None
+        )
+        artist_obj.save()
         for genre_name in artist_data["genres"]:
             genre_obj, created = Genre.objects.get_or_create(name=genre_name)
             artist_obj.genres.add(genre_obj)

@@ -5,6 +5,7 @@ from django.utils import timezone
 class Artist(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
+    image = models.URLField(max_length=500, blank=True, null=True)
     genres = models.ManyToManyField(
         "Genre", related_name="artists", verbose_name="Genres"
     )

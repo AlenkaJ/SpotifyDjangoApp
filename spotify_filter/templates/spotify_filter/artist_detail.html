@@ -26,6 +26,12 @@
     {% endfor %}
 </ul>
 {% endif %}
+
+<p>Listen on Spotify: <a href="https://open.spotify.com/artist/{{ artist.spotify_id }}" target="_blank">Artist's page</a></p>
+{% if artist.image %}
+  <img src="{{ artist.image }}" alt="Artist Image" width="640" height="640"/>
+{% endif %}
+
 </div>
 
 <h3><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h3>
