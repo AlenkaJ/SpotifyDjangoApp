@@ -4,8 +4,9 @@ from spotify_filter.models import Album, Artist, Track, Genre, AlbumTrack
 from .api import SpotifyImporter
 
 
-def import_from_spotify():
-    importer = SpotifyImporter()
+def import_from_spotify(importer=None):
+    if importer is None:
+        importer = SpotifyImporter()
     albums = importer.retrieve_albums()
     for album_entry in albums:
         album_data = album_entry["album"]
