@@ -1,6 +1,7 @@
 from django.utils.html import format_html_join, format_html
 from django.urls import reverse
 import django_tables2 as tables
+from django_filters import FilterSet
 
 from .models import Artist
 
@@ -39,3 +40,9 @@ class ArtistTable(tables.Table):
     def render_genres(self, value):
         genres = value.all()
         return ", ".join([genre.name for genre in genres])
+
+
+class ArtistFilter(FilterSet):
+    class Meta:
+        model = Artist
+        fields = {"name": ["exact"], "genres": ["exact"]}
