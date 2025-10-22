@@ -1,0 +1,16 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+skip-string-normalization = false
+exclude = '''
+/(
+    \.venv
+  | migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["spotify_filter", "analytics_site"]
+skip = ["migrations", ".venv"]

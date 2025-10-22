@@ -1,6 +1,7 @@
 from dateutil import parser
 
-from spotify_filter.models import Album, Artist, Track, Genre, AlbumTrack
+from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
+
 from .api import SpotifyImporter
 
 

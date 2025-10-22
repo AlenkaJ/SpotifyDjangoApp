@@ -1,12 +1,13 @@
+import json
+from unittest.mock import MagicMock, patch
+
 from django.test import TestCase
 from django.urls import reverse
-from unittest.mock import patch, MagicMock
-import json
 
-from spotify_filter.tasks import import_spotify_data_task
-from spotify_filter.models import Album, Artist, Genre, Track, AlbumTrack
-from spotify_filter.spotify_import.import_logic import import_from_spotify
 from spotify_filter.filters import DashboardFilter
+from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
+from spotify_filter.spotify_import.import_logic import import_from_spotify
+from spotify_filter.tasks import import_spotify_data_task
 
 
 class AlbumModelTests(TestCase):

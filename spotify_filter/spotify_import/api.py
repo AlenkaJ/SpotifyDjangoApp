@@ -1,9 +1,10 @@
-from math import inf, ceil
-from itertools import count
-from dotenv import load_dotenv
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 import logging
+from itertools import count
+from math import ceil, inf
+
+import spotipy
+from dotenv import load_dotenv
+from spotipy.oauth2 import SpotifyOAuth
 
 logger = logging.getLogger(__name__)
 

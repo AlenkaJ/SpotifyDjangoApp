@@ -12,6 +12,7 @@ attrs==24.2.0
 babel==2.16.0
 beautifulsoup4==4.12.3
 billiard==4.2.2
+black==25.9.0
 bleach==6.2.0
 celery==5.5.3
 certifi==2024.8.30
@@ -48,6 +49,7 @@ ipykernel==6.29.5
 ipython==8.29.0
 ipywidgets==8.1.5
 isoduration==20.11.0
+isort==7.0.0
 jedi==0.19.1
 Jinja2==3.1.4
 json5==0.9.25
@@ -72,6 +74,7 @@ MarkupSafe==3.0.2
 matplotlib==3.9.2
 matplotlib-inline==0.1.7
 mistune==3.0.2
+mypy_extensions==1.1.0
 nbclient==0.10.0
 nbconvert==7.16.4
 nbformat==5.10.4
@@ -85,6 +88,7 @@ packaging==24.2
 pandas==2.2.3
 pandocfilters==1.5.1
 parso==0.8.4
+pathspec==0.12.1
 pillow==11.0.0
 platformdirs==4.3.6
 pluggy==1.6.0
@@ -99,6 +103,7 @@ pyparsing==3.2.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-json-logger==2.0.7
+pytokens==0.2.0
 pytz==2024.2
 pywin32==308; sys_platform == "win32"
 pywinpty==2.0.14; sys_platform == "win32"

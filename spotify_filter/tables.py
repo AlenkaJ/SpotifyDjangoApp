@@ -1,6 +1,6 @@
-from django.utils.html import format_html_join, format_html
-from django.urls import reverse
 import django_tables2 as tables
+from django.urls import reverse
+from django.utils.html import format_html, format_html_join
 
 from .models import Artist
 

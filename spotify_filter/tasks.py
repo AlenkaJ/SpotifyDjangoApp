@@ -1,4 +1,5 @@
 from celery import shared_task
+
 from .spotify_import.import_logic import import_from_spotify
 
 
