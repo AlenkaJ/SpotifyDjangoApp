@@ -19,9 +19,9 @@ class SpotifyImporter:
                 scopes = ["user-library-read", "playlist-modify-private"]
             self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
 
-    def retrieve_albums(self, max=inf, offset=0, limit=50):
+    def retrieve_albums(self, max_len=inf, offset=0, limit=50):
         assert limit > 0
-        assert max > 0
+        assert max_len > 0
         assert offset >= 0
         albums = []
         counter = count(start=0, step=1)
@@ -31,12 +31,12 @@ class SpotifyImporter:
             batch_num = next(counter)
             logger.info(batch_num)
             batch_offset = offset + limit * batch_num
-            batch_limit = min(limit, max + offset - batch_offset)
+            batch_limit = min(limit, max_len + offset - batch_offset)
             queue_response = self.sp.current_user_saved_albums(
                 limit=batch_limit, offset=batch_offset
             )
             albums += queue_response["items"]
-            if queue_response["next"] is None or len(albums) >= max:
+            if queue_response["next"] is None or len(albums) >= max_len:
                 reading = False
         return albums
 
@@ -55,16 +55,16 @@ if __name__ == "__main__":
     import json
 
     importer = SpotifyImporter()
-    albums = importer.retrieve_albums(max=2)
-    with open("albums2.json", "w") as f:
-        json.dump(albums, f, indent=4)
+    retrieved_albums = importer.retrieve_albums(max_len=2)
+    with open("albums2.json", "w", encoding="utf-8") as f:
+        json.dump(retrieved_albums, f, indent=4)
 
-    ids = []
-    for album_entry in albums:
+    artist_ids = []
+    for album_entry in retrieved_albums:
         album_data = album_entry["album"]
         for artist_data in album_data["artists"]:
-            ids.append(artist_data["id"])
+            artist_ids.append(artist_data["id"])
 
-    artists = importer.retrieve_artists_by_id(ids, limit=50)
-    with open("artists2.json", "w") as f:
-        json.dump(artists, f, indent=4)
+    retrieved_artists = importer.retrieve_artists_by_id(artist_ids, limit=50)
+    with open("artists2.json", "w", encoding="utf-8") as f:
+        json.dump(retrieved_artists, f, indent=4)

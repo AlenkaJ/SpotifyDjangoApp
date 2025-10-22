@@ -11,7 +11,7 @@ class Artist(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     @property
     def spotify_link(self):
@@ -22,7 +22,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Album(models.Model):
@@ -40,7 +40,7 @@ class Album(models.Model):
     album_cover = models.URLField(max_length=500, blank=True, null=True)
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
     @property
     def spotify_link(self):
@@ -54,7 +54,7 @@ class Track(models.Model):
     duration_ms = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
     @property
     def spotify_link(self):

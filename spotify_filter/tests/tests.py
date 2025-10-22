@@ -270,9 +270,11 @@ class ImportSpotifyTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        with open("spotify_filter/tests/data/albums2.json") as f:
+        with open("spotify_filter/tests/data/albums2.json", "r", encoding="utf-8") as f:
             cls.two_albums = json.load(f)
-        with open("spotify_filter/tests/data/artists2.json") as f:
+        with open(
+            "spotify_filter/tests/data/artists2.json", "r", encoding="utf-8"
+        ) as f:
             cls.two_artists = json.load(f)
 
     def test_import_from_spotify_success(self):
