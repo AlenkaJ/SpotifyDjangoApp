@@ -1,4 +1,5 @@
-from django.contrib import messages
+from celery.result import AsyncResult
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import generic
 from django_filters.views import FilterView
@@ -15,11 +16,18 @@ def index(request):
 
 
 def importing(request):
-    import_spotify_data_task.delay()
-    messages.info(
-        request, "Spotify data import has been started. This may take a while."
+    task = import_spotify_data_task.delay()
+    return render(request, "spotify_filter/importing.html", {"task_id": task.id})
+
+
+def task_status(request, task_id):
+    result = AsyncResult(task_id)
+    return JsonResponse(
+        {
+            "status": result.status,
+            "result": result.result if result.status == "SUCCESS" else None,
+        }
     )
-    return render(request, "spotify_filter/importing.html")
 
 
 class DashboardView(SingleTableMixin, FilterView):
