@@ -5,8 +5,36 @@
     <meta charset="UTF-8" />
     {% load static %}
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
+    <style>
+        h1 {text-align: center;}
+        div {text-align: center;}
+    </style>
   </head>
 <body>
-<p>Importing ...</p>
-<h3><a href="{% url 'spotify_filter:dashboard' %}">Go to Dashboard</a></h3>
+<h1>Import in Progress</h1>
+  <div id="status"><p>Please wait while we fetch your Spotify data ...</p>
+    <img src="/static/spotify_filter/images/hopping.gif" height="150" alt="bunny"/>
+  </div>
+
+      <script>
+        const taskId = "{{ task_id }}";
+        const statusUrl = "{% url 'spotify_filter:task_status' task_id='PLACEHOLDER' %}".replace('PLACEHOLDER', taskId);
+        
+        function checkTaskStatus() {
+            console.log('Checking task:', taskId)
+            fetch(statusUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'SUCCESS') {
+                        window.location.href = "{% url 'spotify_filter:dashboard' %}";
+                    } else if (data.status === 'FAILURE') {
+                        document.getElementById('status').textContent = 'Import failed. Please try again.';
+                    } else {
+                        setTimeout(checkTaskStatus, 2000);
+                    }
+                });
+        }
+        
+        checkTaskStatus();
+    </script>
 </body>

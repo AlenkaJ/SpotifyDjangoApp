@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_tables2",
     "bootstrap3",
+    "django_celery_results",
     "spotify_filter.apps.SpotifyFilterConfig",
     "polls.apps.PollsConfig",
     "django.contrib.admin",
@@ -137,7 +138,9 @@ CELERY_BROKER_URL = (
     f"redis://default:{os.getenv('REDIS_PASSWORD')}"
     f"@{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/0"
 )
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
+CELERY_RESULTS_EXTENDED = True
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
