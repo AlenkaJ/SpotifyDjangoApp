@@ -19,7 +19,8 @@ def import_from_spotify(importer=None):
                 "release_date": parser.parse(album_data["release_date"]),
                 "added_at": parser.parse(album_entry["added_at"]),
                 "popularity": int(album_data["popularity"]),
-                # takes the first image url, seems to be the one with the highest resolution
+                # takes the first image url,
+                # seems to be the one with the highest resolution
                 "album_cover": (
                     album_data["images"][0]["url"] if album_data["images"] else None
                 ),
