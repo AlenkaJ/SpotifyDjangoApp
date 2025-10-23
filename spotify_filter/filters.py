@@ -19,7 +19,7 @@ class DashboardFilter(FilterSet):
         model = Artist
         fields = ["artist_name", "album_name", "genre_name"]
 
-    def filter_by_genre(self, queryset, name, value):
+    def filter_by_genre(self, queryset, _name, value):
         """Allow filtering of multiple comma- or space-separated genre keywords"""
         # separate the keywords to a list
         keywords = [v.strip() for v in value.replace(",", " ").split() if v.strip()]
