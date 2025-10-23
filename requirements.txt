@@ -36,6 +36,7 @@ django-bootstrap3==25.2
 django-debug-toolbar==6.0.0
 django-filter==25.2
 django-tables2==2.7.5
+django_celery_results==2.6.0
 duckdb==1.1.2
 executing==2.1.0
 fastjsonschema==2.20.0
