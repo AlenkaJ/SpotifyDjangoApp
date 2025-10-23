@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.shortcuts import render
 from django.views import generic
-from django_tables2.views import SingleTableMixin
 from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
 
-from .models import Artist, Album
-from .tables import ArtistTable
 from .filters import DashboardFilter
+from .models import Album, Artist
+from .tables import ArtistTable
 from .tasks import import_spotify_data_task
 
 

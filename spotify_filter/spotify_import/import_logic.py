@@ -1,6 +1,7 @@
 from dateutil import parser
 
-from spotify_filter.models import Album, Artist, Track, Genre, AlbumTrack
+from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
+
 from .api import SpotifyImporter
 
 
@@ -31,7 +32,8 @@ def import_from_spotify(importer=None):
                 release_date=parser.parse(album_data["release_date"]),
                 added_at=parser.parse(album_entry["added_at"]),
                 popularity=int(album_data["popularity"]),
-                # takes the first image url, seems to be the one with the highest resolution
+                # takes the first image url
+                # seems to be the one with the highest resolution
                 album_cover=(
                     album_data["images"][0]["url"] if album_data["images"] else None
                 ),
@@ -40,7 +42,7 @@ def import_from_spotify(importer=None):
 
         # create each artist if they don't exist and link to album
         for artist_data in album_data["artists"]:
-            artist_obj, artist_created = Artist.objects.get_or_create(
+            artist_obj, _ = Artist.objects.get_or_create(
                 spotify_id=artist_data["id"],
                 defaults={
                     "name": artist_data["name"],
@@ -50,7 +52,7 @@ def import_from_spotify(importer=None):
         album_obj.save()
 
         for track_data in album_data["tracks"]["items"]:
-            track_obj, track_created = Track.objects.get_or_create(
+            track_obj, _ = Track.objects.get_or_create(
                 spotify_id=track_data["id"],
                 defaults={
                     "title": track_data["name"],
@@ -69,12 +71,14 @@ def import_from_spotify(importer=None):
 
     # retrieve genres and images for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))
-    for id, artist_data in zip(artist_ids, importer.retrieve_artists_by_id(artist_ids)):
-        artist_obj = Artist.objects.get(spotify_id=id)
+    for sp_id, artist_data in zip(
+        artist_ids, importer.retrieve_artists_by_id(artist_ids)
+    ):
+        artist_obj = Artist.objects.get(spotify_id=sp_id)
         artist_obj.image = (
             artist_data["images"][0]["url"] if artist_data["images"] else None
         )
         artist_obj.save()
         for genre_name in artist_data["genres"]:
-            genre_obj, created = Genre.objects.get_or_create(name=genre_name)
+            genre_obj, _ = Genre.objects.get_or_create(name=genre_name)
             artist_obj.genres.add(genre_obj)
