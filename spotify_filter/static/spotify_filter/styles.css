@@ -17,3 +17,7 @@ body {
   color: white;
   background-color: rgb(39, 39, 39);
 }
+
+h1 {
+  text-align: center;
+}
