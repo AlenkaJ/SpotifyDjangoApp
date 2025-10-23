@@ -1,3 +1,5 @@
+[![Testing CI](https://github.com/AlenkaJ/SpotifyDjangoApp/actions/workflows/tests.yml/badge.svg)](https://github.com/AlenkaJ/SpotifyDjangoApp/actions/workflows/tests.yml)
+[![Code Quality CI](https://github.com/AlenkaJ/SpotifyDjangoApp/actions/workflows/code_quality.yml/badge.svg)](https://github.com/AlenkaJ/SpotifyDjangoApp/actions/workflows/code_quality.yml)
 [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 
 a server needs to be running for the site to work:
