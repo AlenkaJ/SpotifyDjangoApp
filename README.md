@@ -1,3 +1,5 @@
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+
 a server needs to be running for the site to work:
 (browsing existing dashboard etc works)
 ```
