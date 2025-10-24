@@ -1,5 +1,6 @@
-from dateutil import parser
 import logging
+
+from dateutil import parser
 
 from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
 
@@ -21,7 +22,13 @@ def import_from_spotify(importer=None):
         "tracks_processed": 0,
         "tracks_failed": 0,
     }
+    import_albums(importer, stats)
+    update_artists(importer, stats)
+    logger.info(str(stats))
+    return stats
 
+
+def import_albums(importer, stats):
     albums = importer.retrieve_albums()
     for album_entry in albums:
         album_data = album_entry["album"]
@@ -57,9 +64,12 @@ def import_from_spotify(importer=None):
                     )
                     album_obj.artists.add(artist_obj)
                     stats["artists_processed"] += 1
-                except Exception as e:
+                except KeyError as e:
                     logger.error(
-                        f"Failed to process artist {artist_data["id"]} for album {album_data["id"]}: {e}"
+                        "Failed to process artist %s for album %s: %s",
+                        artist_data["id"],
+                        album_data["id"],
+                        e,
                     )
                     stats["artists_failed"] += 1
                     continue
@@ -85,16 +95,18 @@ def import_from_spotify(importer=None):
                         },
                     )
                     stats["tracks_processed"] += 1
-                except Exception as e:
-                    logger.error(f"Failed to process track {track_data["id"]}: {e}")
+                except KeyError as e:
+                    logger.error("Failed to process track %s: %s", track_data["id"], e)
                     stats["tracks_failed"] += 1
                     continue
             stats["albums_processed"] += 1
-        except Exception as e:
-            logger.error(f"Failed to process album {album_data["id"]}: {e}")
+        except KeyError as e:
+            logger.error("Failed to process album %s: %s", album_data["id"], e)
             stats["albums_failed"] += 1
             continue
 
+
+def update_artists(importer, stats):
     # retrieve genres and images for all artists
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))
     for sp_id, artist_data in zip(
@@ -110,8 +122,7 @@ def import_from_spotify(importer=None):
                 genre_obj, _ = Genre.objects.get_or_create(name=genre_name)
                 artist_obj.genres.add(genre_obj)
             stats["artists_updated"] += 1
-        except Exception as e:
-            logger.error(f"Failed to undate artist {sp_id}: {e}")
+        except KeyError as e:
+            logger.error("Failed to update artist %s: %s", sp_id, e)
             stats["artists_failed"] += 1
             continue
-    logger.info(str(stats))
