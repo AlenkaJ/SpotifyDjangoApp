@@ -1,4 +1,5 @@
 import json
+import logging
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
@@ -8,6 +9,8 @@ from spotify_filter.filters import DashboardFilter
 from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
 from spotify_filter.spotify_import.import_logic import import_from_spotify
 from spotify_filter.tasks import import_spotify_data_task
+
+logging.disable(logging.CRITICAL)
 
 
 class AlbumModelTests(TestCase):
@@ -283,8 +286,17 @@ class ImportSpotifyTests(TestCase):
         mock_importer.retrieve_albums.return_value = self.two_albums
         mock_importer.retrieve_artists_by_id.return_value = self.two_artists
 
-        import_from_spotify(mock_importer)
+        stats = import_from_spotify(mock_importer)
 
+        assert stats == {
+            "albums_processed": 2,
+            "albums_failed": 0,
+            "artists_processed": 2,
+            "artists_updated": 2,
+            "artists_failed": 0,
+            "tracks_processed": 25,
+            "tracks_failed": 0,
+        }
         assert Album.objects.count() == 2
         assert Artist.objects.count() == 2
         assert Track.objects.count() == 25
@@ -296,9 +308,56 @@ class ImportSpotifyTests(TestCase):
         import_spotify_data_task()
         mock_import.assert_called_once()
 
+    def test_import_from_spotify_data_error_in_album(self):
+        """Test handling of KeyError exception when album data is weird"""
+        mock_importer = MagicMock()
+        mock_importer.retrieve_albums.return_value = [
+            {
+                "added_at": "",
+                "album": {
+                    "id": "123",
+                    "title": "test_album",
+                    "artists": [{"name": "test_artist", "id": "321"}],
+                },
+            }
+        ]
+        mock_importer.retrieve_artists_by_id.return_value = []
+
+        stats = import_from_spotify(mock_importer)
+        assert stats == {
+            "albums_processed": 0,
+            "albums_failed": 1,
+            "artists_processed": 0,
+            "artists_updated": 0,
+            "artists_failed": 0,
+            "tracks_processed": 0,
+            "tracks_failed": 0,
+        }
+
+    def test_import_from_spotify_data_error_in_artist(self):
+        """Test handling of KeyError exception when artist data is weird"""
+        mock_importer = MagicMock()
+        mock_importer.retrieve_albums.return_value = self.two_albums
+        correct_artists = self.two_artists
+        mock_importer.retrieve_artists_by_id.return_value = [
+            {"id": ar["id"]} for ar in correct_artists
+        ]
+
+        stats = import_from_spotify(mock_importer)
+        assert stats == {
+            "albums_processed": 2,
+            "albums_failed": 0,
+            "artists_processed": 2,
+            "artists_updated": 0,
+            "artists_failed": 2,
+            "tracks_processed": 25,
+            "tracks_failed": 0,
+        }
+
 
 class FilterTests(TestCase):
     def test_genre_filter_and_logic(self):
+        """Test dashboard filtering"""
         indie = Genre.objects.create(name="indie Rock")
         experimental = Genre.objects.create(name="experimental")
         jazz = Genre.objects.create(name="jazz")
@@ -316,5 +375,4 @@ class FilterTests(TestCase):
         filterset = DashboardFilter(data={"genre_name": "indie, experimental"})
         results = filterset.qs
 
-        print(results)
         assert list(results) == [artist1]
