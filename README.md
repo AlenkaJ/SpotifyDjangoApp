@@ -6,29 +6,29 @@
 
 This web app loads the saved albums from your Spotify library and allows you to browse or filter the albums at your leisure.
 
-![Dashboard Screenshot](path/to/screenshot.png)
-
 ## Features
 
-- 🎵 [Feature 1]
-- 📊 [Feature 2]
-- ⚡ [Feature 3]
-- 🔄 [Feature 4]
+- 🎵 Explore all your saved albums and artists
+- ⚡ See which genres Spotify assigns them
+- 📊 Filter by artist name, album name, and/or genres
 
 ## Tech Stack
 
-**Backend:** Django, Celery, Redis, PostgreSQL
-**APIs:** Spotify Web API (via Spotipy)
-**Frontend:** Django templates, django-tables2, django-filter
-**Dev Tools:** GitHub Actions (CI/CD), black, isort, flake8, pylint
+- **Backend:** Django, Celery, Redis, PostgreSQL
+- **APIs:** Spotify Web API (via Spotipy)
+- **Frontend:** Django templates, django-tables2, django-filter
+- **Dev Tools:** GitHub Actions (CI/CD), black, isort, flake8, pylint
 
 ## Screenshots
 
 ### Dashboard
-[Screenshot of main dashboard]
+![Dashboard Screenshot](imgs/dashboard_screenshot.png)
 
 ### Artist Detail
-[Screenshot of artist detail page]
+![Artist Detail Screenshot](imgs/artist_screenshot.png)
+
+### Album Detail
+![Album Detail Screenshot](imgs/album_screenshot.png)
 
 ## Setup
 
@@ -46,24 +46,19 @@ git clone https://github.com/AlenkaJ/SpotifyDjangoApp.git
 cd SpotifyDjangoApp
 ```
 
-2. Create virtual environment and install dependencies:
+2. Create a virtual environment and install dependencies:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Set up environment variables:
-Create a `.env` file in the project root:
+3. Set up environment variables: Copy `.env.example` file as `.env` and update the variables according to the instructions:
 ```
-SPOTIPY_CLIENT_ID=your_client_id
-SPOTIPY_CLIENT_SECRET=your_client_secret
-SPOTIPY_REDIRECT_URI=http://localhost:8000/callback
-DATABASE_URL=postgresql://user:password@localhost:5432/spotify_db
-CELERY_BROKER_URL=redis://localhost:6379/0
+cp .env.example .env
 ```
 
-4. Set up the database:
+5. Set up the database:
 ```bash
 python manage.py migrate
 ```
@@ -75,7 +70,7 @@ redis-server
 
 6. Start Celery worker (in separate terminal):
 ```bash
-celery -A [your_project_name] worker -l info
+celery -A analytics_site worker -l info # On Windows, try adding: --pool=solo
 ```
 
 7. Run the development server:
@@ -83,20 +78,13 @@ celery -A [your_project_name] worker -l info
 python manage.py runserver
 ```
 
-8. Visit `http://localhost:8000` and start importing your Spotify data!
+8. Visit `http://localhost:8000/spotify_filter/` and start importing your Spotify data!
 
 ## Usage
 
-[Brief description of how to use the app - import data, browse, filter, etc.]
-
-## Project Structure
-```
-spotify_app/
-├── spotify_filter/       # Main Django app
-├── templates/           # HTML templates
-├── static/             # CSS, JS, images
-└── ...
-```
+Load the data by using the "Load Spotify" button. If you already did before and you are happy with the current state of the database contents, you can click "Go to an existing dashboard".
+When looking at the dashboard, you can use the bars at the top to filter the artists, albums, and genres by name. You can filter for multiple genres at the same time - just divide them by "," or " ".
+You can also look at the details of each artist and album using their link.
 
 ## Development
 
@@ -110,27 +98,11 @@ The project uses GitHub Actions for automated testing and code quality checks (b
 
 ## Future Improvements
 
-- [ ] [Thing you want to add]
-- [ ] [Another thing]
-- [ ] [etc.]
+- [ ] More filtering and sorting options (date added, released date, number of tracks, popularity, etc.)
+- [ ] Provide more insights about the Spotify library (statistics, graphs)
+- [ ] Include data from more sources, starting with LastFM tags
+- [ ] Create a similarity metric between the artists for search and visualization purposes
 
 ## Related Projects
 
 This project evolved from an earlier data analysis exploration: [SpotifyShenanigans](https://github.com/AlenkaJ/SpotifyShenanigans)
-
-## License
-
-[Your choice - MIT is common for portfolio projects]
-
-a server needs to be running for the site to work:
-(browsing existing dashboard etc works)
-```
-python manage.py runserver
-```
-
-Celery needs to be running in the background for the spotify loading to work properly - it runs background task:
-```
-celery -A analytics_site worker -l info --pool=solo
-```
-
-(run each of those in separate cmd)
