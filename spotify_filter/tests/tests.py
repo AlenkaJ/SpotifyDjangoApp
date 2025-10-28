@@ -411,9 +411,7 @@ class FilterTests(TestCase):
         album2 = Album.objects.create(spotify_id="a2", title="The Wall")
         album3 = Album.objects.create(spotify_id="a3", title="Abbey Road")
 
-        filterset = AlbumFilter(data={"title": "The"})
+        filterset = AlbumFilter(data={"album_name": "The"})
         results = filterset.qs
 
-        assert album1 in results
-        assert album2 in results
-        assert album3 not in results
+        set(results) == {album1, album2}
