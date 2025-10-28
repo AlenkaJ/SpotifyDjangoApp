@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 def import_from_spotify(importer=None):
+    """Import data from Spotify into the local database.
+    Args:
+        importer (SpotifyImporter, optional): An instance of SpotifyImporter.
+            If None, a new instance will be created.
+    Returns:
+        dict: A dictionary containing statistics about the import process.
+    """
+
     if importer is None:
         importer = SpotifyImporter()
 
@@ -29,6 +37,7 @@ def import_from_spotify(importer=None):
 
 
 def import_albums(importer, stats):
+    """Import albums from Spotify into the local database."""
     albums = importer.retrieve_albums()
     for album_entry in albums:
         album_data = album_entry["album"]
@@ -107,7 +116,7 @@ def import_albums(importer, stats):
 
 
 def update_artists(importer, stats):
-    # retrieve genres and images for all artists
+    """Update artist information such as genres and images."""
     artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))
     for sp_id, artist_data in zip(
         artist_ids, importer.retrieve_artists_by_id(artist_ids)

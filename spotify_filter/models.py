@@ -3,6 +3,8 @@ from django.utils import timezone
 
 
 class Artist(models.Model):
+    """Model representing a musical artist."""
+
     spotify_id = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
     image = models.URLField(max_length=500, blank=True, null=True)
@@ -15,10 +17,13 @@ class Artist(models.Model):
 
     @property
     def spotify_link(self):
+        """Return the Spotify link for the artist."""
         return f"https://open.spotify.com/artist/{self.spotify_id}"
 
 
 class Genre(models.Model):
+    """Model representing a musical genre."""
+
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -26,6 +31,8 @@ class Genre(models.Model):
 
 
 class Album(models.Model):
+    """Model representing a musical album."""
+
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
     artists = models.ManyToManyField(
@@ -44,10 +51,13 @@ class Album(models.Model):
 
     @property
     def spotify_link(self):
+        """Return the Spotify link for the album."""
         return f"https://open.spotify.com/album/{self.spotify_id}"
 
 
 class Track(models.Model):
+    """Model representing a musical track."""
+
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
     albums = models.ManyToManyField(Album, through="AlbumTrack", related_name="tracks")
@@ -58,10 +68,13 @@ class Track(models.Model):
 
     @property
     def spotify_link(self):
+        """Return the Spotify link for the track."""
         return f"https://open.spotify.com/track/{self.spotify_id}"
 
 
 class AlbumTrack(models.Model):
+    """Through model representing the relationship between albums and tracks."""
+
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     track_number = models.IntegerField()

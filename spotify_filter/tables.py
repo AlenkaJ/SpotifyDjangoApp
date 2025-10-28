@@ -6,9 +6,13 @@ from .models import Album, Artist
 
 
 class ArtistTable(tables.Table):
+    """Table representation for Artist model."""
+
     albums = tables.Column(verbose_name="Albums")
 
     class Meta:
+        """Meta class for ArtistTable."""
+
         model = Artist
         template_name = "django_tables2/bootstrap.html"
         fields = (
@@ -18,6 +22,7 @@ class ArtistTable(tables.Table):
         )
 
     def render_name(self, value, record):
+        """Render the artist name as a link to the artist detail page."""
         return format_html(
             '<a href="{}">{}</a>',
             reverse("spotify_filter:artist_detail", args=[record.id]),
@@ -25,6 +30,7 @@ class ArtistTable(tables.Table):
         )
 
     def render_albums(self, value):
+        """Render the albums as links to their detail pages."""
         albums = value.all()
         return format_html_join(
             "",
@@ -36,14 +42,19 @@ class ArtistTable(tables.Table):
         )
 
     def render_genres(self, value):
+        """Render the genres as a comma-separated list."""
         genres = value.all()
         return ", ".join([genre.name for genre in genres])
 
 
 class AlbumTable(tables.Table):
+    """Table representation for Album model."""
+
     artists = tables.Column(verbose_name="Artists")
 
     class Meta:
+        """Meta class for AlbumTable."""
+
         model = Album
         template_name = "django_tables2/bootstrap.html"
         fields = (
@@ -56,6 +67,7 @@ class AlbumTable(tables.Table):
         )
 
     def render_title(self, value, record):
+        """Render the album title as a link to the album detail page."""
         return format_html(
             '<a href="{}">{}</a>',
             reverse("spotify_filter:album_detail", args=[record.id]),
@@ -63,6 +75,7 @@ class AlbumTable(tables.Table):
         )
 
     def render_artists(self, value):
+        """Render the artists as links to their detail pages."""
         artists = value.all()
         return format_html_join(
             ", ",

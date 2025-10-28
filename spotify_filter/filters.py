@@ -4,6 +4,8 @@ from .models import Album, Artist
 
 
 class ArtistFilter(FilterSet):
+    """FilterSet for Artist model."""
+
     artist_name = CharFilter(
         field_name="name", lookup_expr="icontains", label="Artist", distinct=True
     )
@@ -16,6 +18,8 @@ class ArtistFilter(FilterSet):
     genre_name = CharFilter(method="filter_by_genre", label="Genres", distinct=True)
 
     class Meta:
+        """Meta class for ArtistFilter."""
+
         model = Artist
         fields = ["artist_name", "album_name", "genre_name"]
 
@@ -35,6 +39,8 @@ class ArtistFilter(FilterSet):
 
 
 class AlbumFilter(FilterSet):
+    """FilterSet for Album model."""
+
     album_name = CharFilter(
         field_name="title", lookup_expr="icontains", label="Album", distinct=True
     )
@@ -46,5 +52,7 @@ class AlbumFilter(FilterSet):
     )
 
     class Meta:
+        """Meta class for AlbumFilter."""
+
         model = Album
         fields = ["album_name", "artist_name"]
