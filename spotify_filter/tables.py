@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 
-from .models import Artist, Album
+from .models import Album, Artist
 
 
 class ArtistTable(tables.Table):

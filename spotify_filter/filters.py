@@ -1,6 +1,6 @@
 from django_filters import CharFilter, FilterSet
 
-from .models import Artist, Album
+from .models import Album, Artist
 
 
 class ArtistFilter(FilterSet):

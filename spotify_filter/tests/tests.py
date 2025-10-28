@@ -5,12 +5,14 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 from django.urls import reverse
 
-from spotify_filter.filters import DashboardFilter
+from spotify_filter.filters import ArtistFilter, AlbumFilter
 from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
 from spotify_filter.spotify_import.import_logic import import_from_spotify
 from spotify_filter.tasks import import_spotify_data_task
 
 logging.disable(logging.CRITICAL)
+
+# pylint: disable=duplicate-code
 
 
 class AlbumModelTests(TestCase):
@@ -356,7 +358,7 @@ class ImportSpotifyTests(TestCase):
 
 
 class FilterTests(TestCase):
-    def test_genre_filter_and_logic(self):
+    def test_artist_genre_filter_and_logic(self):
         """Test dashboard filtering"""
         indie = Genre.objects.create(name="indie Rock")
         experimental = Genre.objects.create(name="experimental")
@@ -372,7 +374,22 @@ class FilterTests(TestCase):
         artist3.genres.add(jazz)
 
         # Should return only Artist 1, because only they have *both* genres
-        filterset = DashboardFilter(data={"genre_name": "indie, experimental"})
+        filterset = ArtistFilter(data={"genre_name": "indie, experimental"})
         results = filterset.qs
 
         assert list(results) == [artist1]
+
+    def test_album_filter_by_title(self):
+        """Test album filtering by title"""
+        album1 = Album.objects.create(
+            spotify_id="a1", title="The Dark Side of the Moon"
+        )
+        album2 = Album.objects.create(spotify_id="a2", title="The Wall")
+        album3 = Album.objects.create(spotify_id="a3", title="Abbey Road")
+
+        filterset = AlbumFilter(data={"title": "The"})
+        results = filterset.qs
+
+        assert album1 in results
+        assert album2 in results
+        assert album3 not in results
