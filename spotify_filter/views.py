@@ -34,7 +34,9 @@ def task_status(request, task_id):
 
 
 class DashboardView(SingleTableMixin, FilterView):
-    """Dashboard view to display artists or albums with filtering and table representation."""
+    """
+    Dashboard view to display artists or albums with filtering and table representation.
+    """
 
     template_name = "spotify_filter/dashboard.html"
 

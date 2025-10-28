@@ -414,4 +414,6 @@ class FilterTests(TestCase):
         filterset = AlbumFilter(data={"album_name": "The"})
         results = filterset.qs
 
-        set(results) == {album1, album2}
+        assert album1 in results
+        assert album2 in results
+        assert album3 not in results
