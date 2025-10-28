@@ -1,9 +1,9 @@
 from django_filters import CharFilter, FilterSet
 
-from .models import Artist
+from .models import Artist, Album
 
 
-class DashboardFilter(FilterSet):
+class ArtistFilter(FilterSet):
     artist_name = CharFilter(
         field_name="name", lookup_expr="icontains", label="Artist", distinct=True
     )
@@ -32,3 +32,19 @@ class DashboardFilter(FilterSet):
             queryset = queryset.filter(genres__name__icontains=kw)
 
         return queryset.distinct()
+
+
+class AlbumFilter(FilterSet):
+    album_name = CharFilter(
+        field_name="title", lookup_expr="icontains", label="Album", distinct=True
+    )
+    artist_name = CharFilter(
+        field_name="artists__name",
+        lookup_expr="icontains",
+        label="Artist",
+        distinct=True,
+    )
+
+    class Meta:
+        model = Album
+        fields = ["album_name", "artist_name"]

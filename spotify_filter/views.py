@@ -5,9 +5,9 @@ from django.views import generic
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
-from .filters import DashboardFilter
+from .filters import AlbumFilter, ArtistFilter
 from .models import Album, Artist
-from .tables import ArtistTable
+from .tables import AlbumTable, ArtistTable
 from .tasks import import_spotify_data_task
 
 
@@ -31,14 +31,39 @@ def task_status(request, task_id):
 
 
 class DashboardView(SingleTableMixin, FilterView):
-    model = Artist
-    table_class = ArtistTable
     template_name = "spotify_filter/dashboard.html"
-    context_object_name = "artist_list"
-    filterset_class = DashboardFilter
 
     def get_queryset(self):
+        view_mode = self.request.GET.get("view", "artists")
+        if view_mode == "albums":
+            Album.objects.all()
         return Artist.objects.all()
+
+    def get_filterset_class(self):
+        view_mode = self.request.GET.get("view", "artists")
+        if view_mode == "albums":
+            return AlbumFilter
+        return ArtistFilter
+
+    def get_table_class(self):
+        view_mode = self.request.GET.get("view", "artists")
+        if view_mode == "albums":
+            return AlbumTable
+        return ArtistTable
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        view_mode = self.request.GET.get("view", "artists")
+        if view_mode == "albums":
+            kwargs["queryset"] = Album.objects.all()
+        else:
+            kwargs["queryset"] = Artist.objects.all()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_view"] = self.request.GET.get("view", "artists")
+        return context
 
 
 class ArtistDetailView(generic.DetailView):

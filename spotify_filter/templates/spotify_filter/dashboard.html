@@ -6,18 +6,37 @@
     <title>Music Dashboard</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    {% if filter %}
-        <form action="" method="get" class="form form-inline">
-            {% bootstrap_form filter.form layout='inline' %}
-            {% bootstrap_button 'filter' %}
-        </form>
-    {% endif %}
     {% load static %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}"/>
   </head>
   <body>
-    {% render_table table %}
+    <div class="container">
+      <!-- View Toggle Buttons -->
+      <div class="view-toggle" style="margin: 20px 0;">
+        <a href="?view=artists" 
+           class="btn {% if active_view == 'artists' %}btn-primary{% else %}btn-default{% endif %}">
+          View by Artists
+        </a>
+        <a href="?view=albums" 
+           class="btn {% if active_view == 'albums' %}btn-primary{% else %}btn-default{% endif %}">
+          View by Albums
+        </a>
+      </div>
+      
+      <!-- Filter Form -->
+      {% if filter %}
+        <form action="" method="get" class="form form-inline">
+          <!-- Preserve the view parameter when filtering -->
+          <input type="hidden" name="view" value="{{ active_view }}">
+          {% bootstrap_form filter.form layout='inline' %}
+          {% bootstrap_button 'filter' %}
+        </form>
+      {% endif %}
+      
+      <!-- Table -->
+      {% render_table table %}
+    </div>
   </body>
 </html>
 
