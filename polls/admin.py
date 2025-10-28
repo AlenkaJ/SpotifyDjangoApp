@@ -4,11 +4,15 @@ from .models import Choice, Question
 
 
 class ChoiceInline(admin.TabularInline):
+    """Inline admin interface for Choice model."""
+
     model = Choice
     extra = 2
 
 
 class QuestionAdmin(admin.ModelAdmin):
+    """Admin interface for Question model."""
+
     fieldsets = [
         (None, {"fields": ["question_text"]}),
         ("Date information", {"fields": ["pub_date"], "classes": ["collapse"]}),

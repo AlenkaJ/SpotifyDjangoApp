@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class SpotifyImporter:
+    """Class to import data from Spotify API."""
+
     def __init__(self, sp=None, scopes=None, max_retries=3, retry_delay=2):
         load_dotenv()
         self.max_retries = max_retries
@@ -28,6 +30,16 @@ class SpotifyImporter:
                 raise
 
     def retrieve_albums(self, max_len=inf, offset=0, limit=50):
+        """
+        Retrieve saved albums from the user's Spotify library.
+
+        Args:
+            max_len (int): Maximum number of albums to retrieve.
+            offset (int): The index of the first album to retrieve.
+            limit (int): Number of albums to retrieve per API call.
+        Returns:
+            list: A list of album objects.
+        """
         assert limit > 0
         assert max_len > 0
         assert offset >= 0
@@ -57,6 +69,15 @@ class SpotifyImporter:
         return albums
 
     def retrieve_artists_by_id(self, ids, limit=50):
+        """
+        Retrieve artist information by their Spotify IDs.
+
+        Args:
+            ids (list): List of Spotify artist IDs.
+            limit (int): Number of artists to retrieve per API call.
+        Returns:
+            list: A list of artist objects.
+        """
         artists = []
         nbatches = ceil(len(ids) / limit)
         logger.info("Reading artists ... ")
@@ -75,6 +96,7 @@ class SpotifyImporter:
         return artists
 
     def _fetch_batch_with_retries(self, func, *args, **kwargs):
+        """Fetch a batch of data with retries on failure."""
         for attempt in range(1, self.max_retries + 1):
             try:
                 return func(*args, **kwargs)

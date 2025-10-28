@@ -5,15 +5,19 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 from django.urls import reverse
 
-from spotify_filter.filters import DashboardFilter
+from spotify_filter.filters import ArtistFilter, AlbumFilter
 from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
 from spotify_filter.spotify_import.import_logic import import_from_spotify
 from spotify_filter.tasks import import_spotify_data_task
 
 logging.disable(logging.CRITICAL)
 
+# pylint: disable=duplicate-code
+
 
 class AlbumModelTests(TestCase):
+    """Tests for the Album model."""
+
     def test_album_creation(self):
         """Test that an Album instance can be created successfully."""
         album = Album.objects.create(
@@ -58,6 +62,8 @@ class AlbumModelTests(TestCase):
 
 
 class ArtistModelTests(TestCase):
+    """Tests for the Artist model."""
+
     def test_artist_creation(self):
         """Test that an Artist instance can be created successfully."""
         artist = Artist.objects.create(spotify_id="a1", name="Artist One")
@@ -96,6 +102,8 @@ class ArtistModelTests(TestCase):
 
 
 class GenreModelTests(TestCase):
+    """Tests for the Genre model."""
+
     def test_genre_creation(self):
         """Test that a Genre instance can be created successfully."""
         genre = Genre.objects.create(name="Rock")
@@ -108,6 +116,8 @@ class GenreModelTests(TestCase):
 
 
 class TrackModelTests(TestCase):
+    """Tests for the Track model."""
+
     def test_track_creation(self):
         """Test that a Track instance can be created successfully."""
         track = Track.objects.create(
@@ -142,6 +152,8 @@ class TrackModelTests(TestCase):
 
 
 class AlbumTrackModelTests(TestCase):
+    """Tests for the AlbumTrack model."""
+
     def test_album_track_creation(self):
         """Test that an AlbumTrack instance can be created successfully."""
         album = Album.objects.create(spotify_id="12345", title="Test Album")
@@ -190,6 +202,8 @@ class AlbumTrackModelTests(TestCase):
 
 
 class IndexViewTests(TestCase):
+    """Tests for the index view."""
+
     def test_index_view_status_code(self):
         """Test that the index view returns a 200 status code."""
         response = self.client.get(reverse("spotify_filter:index"))
@@ -202,6 +216,8 @@ class IndexViewTests(TestCase):
 
 
 class ImportingViewTests(TestCase):
+    """Tests for the importing view."""
+
     def test_importing_view_status_code(self):
         """Test that the importing view returns a 200 status code."""
         response = self.client.get(reverse("spotify_filter:importing"))
@@ -214,6 +230,8 @@ class ImportingViewTests(TestCase):
 
 
 class ArtistDetailViewTests(TestCase):
+    """Tests for the ArtistDetailView."""
+
     def test_artist_detail_view_status_code(self):
         """Test that the ArtistDetailView returns a 200 status code."""
         artist = Artist.objects.create(spotify_id="a1", name="Artist One")
@@ -232,6 +250,8 @@ class ArtistDetailViewTests(TestCase):
 
 
 class AlbumDetailViewTests(TestCase):
+    """Tests for the AlbumDetailView."""
+
     def test_album_detail_view_status_code(self):
         """Test that the AlbumDetailView returns a 200 status code."""
         album = Album.objects.create(spotify_id="12345", title="Test Album")
@@ -250,6 +270,8 @@ class AlbumDetailViewTests(TestCase):
 
 
 class DashboardViewTests(TestCase):
+    """Tests for the DashboardView."""
+
     def test_dashboard_view_status_code(self):
         """Test that the DashboardView returns a 200 status code."""
         response = self.client.get(reverse("spotify_filter:dashboard"))
@@ -270,6 +292,8 @@ class DashboardViewTests(TestCase):
 
 
 class ImportSpotifyTests(TestCase):
+    """Tests for the Spotify data import functionality."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -356,7 +380,9 @@ class ImportSpotifyTests(TestCase):
 
 
 class FilterTests(TestCase):
-    def test_genre_filter_and_logic(self):
+    """Tests for the filtering functionality in the dashboard."""
+
+    def test_artist_genre_filter_and_logic(self):
         """Test dashboard filtering"""
         indie = Genre.objects.create(name="indie Rock")
         experimental = Genre.objects.create(name="experimental")
@@ -372,7 +398,20 @@ class FilterTests(TestCase):
         artist3.genres.add(jazz)
 
         # Should return only Artist 1, because only they have *both* genres
-        filterset = DashboardFilter(data={"genre_name": "indie, experimental"})
+        filterset = ArtistFilter(data={"genre_name": "indie, experimental"})
         results = filterset.qs
 
         assert list(results) == [artist1]
+
+    def test_album_filter_by_title(self):
+        """Test album filtering by title"""
+        album1 = Album.objects.create(
+            spotify_id="a1", title="The Dark Side of the Moon"
+        )
+        album2 = Album.objects.create(spotify_id="a2", title="The Wall")
+        album3 = Album.objects.create(spotify_id="a3", title="Abbey Road")
+
+        filterset = AlbumFilter(data={"album_name": "The"})
+        results = filterset.qs
+
+        set(results) == {album1, album2}
