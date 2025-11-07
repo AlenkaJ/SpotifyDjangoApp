@@ -46,39 +46,12 @@ git clone https://github.com/AlenkaJ/SpotifyDjangoApp.git
 cd SpotifyDjangoApp
 ```
 
-2. Create a virtual environment and install dependencies:
+2. Build and run the Docker containers (make sure Docker and Docker Compose are installed and running): 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+docker-compose up
 ```
 
-3. Set up environment variables: Copy `.env.example` file as `.env` and update the variables according to the instructions:
-```
-cp .env.example .env
-```
-
-5. Set up the database:
-```bash
-python manage.py migrate
-```
-
-5. Start Redis (in separate terminal):
-```bash
-redis-server
-```
-
-6. Start Celery worker (in separate terminal):
-```bash
-celery -A analytics_site worker -l info # On Windows, try adding: --pool=solo
-```
-
-7. Run the development server:
-```bash
-python manage.py runserver
-```
-
-8. Visit `http://localhost:8000/spotify_filter/` and start importing your Spotify data!
+3. Visit `http://localhost:8000/spotify_filter/` and start importing your Spotify data!
 
 ## Usage
 
@@ -90,7 +63,7 @@ You can also look at the details of each artist and album using their link.
 
 ### Running Tests
 ```bash
-python manage.py test
+docker-compose run web python manage.py test
 ```
 
 ### Code Quality
