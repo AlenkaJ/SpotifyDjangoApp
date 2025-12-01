@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Artist Detail</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    {% load static %}
+{% extends "spotify_filter/base.html" %}
+{% load static %}
+
+{% block title %}Album Detail{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'spotify_filter/detail_styles.css' %}">
-    <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
- </head>
-<body>
-<div>
+{% endblock %}
+
+{% block content %}
+<div id="frame">
 <h1>{{ artist.name }}</h1>
 
 <h2>Albums:</h2>
@@ -36,5 +35,4 @@
 </div>
 
 <h3><a href="{% url 'spotify_filter:dashboard' %}">Back to Dashboard</a></h3>
-</body>
-</html>
+{% endblock %}
