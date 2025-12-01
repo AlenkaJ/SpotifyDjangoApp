@@ -6,7 +6,7 @@ from .models import Album, Artist, Track
 class ArtistAdmin(admin.ModelAdmin):
     """Admin representation for Artist model."""
 
-    list_display = ("name", "spotify_id")
+    list_display = ("name", "spotify_id", "user_id")
     list_filter = ["genres"]
     search_fields = ["name"]
 
@@ -14,7 +14,7 @@ class ArtistAdmin(admin.ModelAdmin):
 class AlbumAdmin(admin.ModelAdmin):
     """Admin representation for Album model."""
 
-    list_display = ("title", "added_at", "release_date", "popularity")
+    list_display = ("title", "added_at", "release_date", "popularity", "user_id")
     list_filter = ["release_date"]
     search_fields = ["title"]
 

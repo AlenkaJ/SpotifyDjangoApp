@@ -1,16 +1,21 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 class Artist(models.Model):
     """Model representing a musical artist."""
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     spotify_id = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
     image = models.URLField(max_length=500, blank=True, null=True)
     genres = models.ManyToManyField(
         "Genre", related_name="artists", verbose_name="Genres"
     )
+
+    class Meta:
+        unique_together = ["user", "spotify_id"]
 
     def __str__(self):
         return str(self.name)
@@ -33,6 +38,7 @@ class Genre(models.Model):
 class Album(models.Model):
     """Model representing a musical album."""
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     spotify_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=200)
     artists = models.ManyToManyField(
@@ -45,6 +51,9 @@ class Album(models.Model):
     added_at = models.DateTimeField(default=timezone.now)
     popularity = models.IntegerField(default=0)
     album_cover = models.URLField(max_length=500, blank=True, null=True)
+
+    class Meta:
+        unique_together = ["user", "spotify_id"]
 
     def __str__(self):
         return str(self.title)
@@ -83,3 +92,14 @@ class AlbumTrack(models.Model):
     class Meta:
         unique_together = ("album", "track")
         ordering = ["disc_number", "track_number"]
+
+
+class SpotifyToken(models.Model):
+    """
+    Model storing information about spotify token for each user
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    access_token = models.CharField(max_length=255)
+    refresh_token = models.CharField(max_length=255)
+    expires_at = models.DateTimeField()

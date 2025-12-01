@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 class SpotifyImporter:
     """Class to import data from Spotify API."""
 
-    def __init__(self, sp=None, scopes=None, max_retries=3, retry_delay=2):
+    def __init__(self, user, sp=None, scopes=None, max_retries=3, retry_delay=2):
         load_dotenv()
+        self.user = user
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         if sp is not None:

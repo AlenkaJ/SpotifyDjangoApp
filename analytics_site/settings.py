@@ -171,3 +171,8 @@ LOGGING = {
         },
     },
 }
+
+LOGIN_URL = "/spotify_filter/login/"
+LOGIN_REDIRECT_URL = "/spotify_filter/"
+LOGOUT_URL = "/spotify_filter/logout/"
+LOGOUT_REDIRECT_URL = "/spotify_filter/"

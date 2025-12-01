@@ -9,7 +9,7 @@ from .api import SpotifyImporter
 logger = logging.getLogger(__name__)
 
 
-def import_from_spotify(importer=None):
+def import_from_spotify(user, importer=None):
     """Import data from Spotify into the local database.
     Args:
         importer (SpotifyImporter, optional): An instance of SpotifyImporter.
@@ -19,7 +19,7 @@ def import_from_spotify(importer=None):
     """
 
     if importer is None:
-        importer = SpotifyImporter()
+        importer = SpotifyImporter(user)
 
     stats = {
         "albums_processed": 0,
@@ -43,6 +43,7 @@ def import_albums(importer, stats):
         album_data = album_entry["album"]
         try:
             album_obj, album_created = Album.objects.get_or_create(
+                user=importer.user,
                 spotify_id=album_data["id"],
                 defaults={
                     "title": album_data["name"],
@@ -66,6 +67,7 @@ def import_albums(importer, stats):
             for artist_data in album_data["artists"]:
                 try:
                     artist_obj, _ = Artist.objects.get_or_create(
+                        user=importer.user,
                         spotify_id=artist_data["id"],
                         defaults={
                             "name": artist_data["name"],
@@ -117,12 +119,14 @@ def import_albums(importer, stats):
 
 def update_artists(importer, stats):
     """Update artist information such as genres and images."""
-    artist_ids = list(Artist.objects.values_list("spotify_id", flat=True))
+    artist_ids = list(
+        Artist.objects.values_list("spotify_id", flat=True)
+    )  # filter only the user specific artists?
     for sp_id, artist_data in zip(
         artist_ids, importer.retrieve_artists_by_id(artist_ids)
     ):
         try:
-            artist_obj = Artist.objects.get(spotify_id=sp_id)
+            artist_obj = Artist.objects.get(spotify_id=sp_id, user=importer.user)
             artist_obj.image = (
                 artist_data["images"][0]["url"] if artist_data["images"] else None
             )

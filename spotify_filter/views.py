@@ -2,13 +2,19 @@ from celery.result import AsyncResult
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import generic
+from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
+from django.views.generic.edit import CreateView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 
 from .filters import AlbumFilter, ArtistFilter
 from .models import Album, Artist
 from .tables import AlbumTable, ArtistTable
 from .tasks import import_spotify_data_task
+from .forms import UserRegisterForm
 
 
 def index(request):
@@ -16,9 +22,10 @@ def index(request):
     return render(request, "spotify_filter/index.html")
 
 
+@login_required
 def importing(request):
     """View to start the Spotify data import process."""
-    task = import_spotify_data_task.delay()
+    task = import_spotify_data_task.delay(request.user.id)
     return render(request, "spotify_filter/importing.html", {"task_id": task.id})
 
 
@@ -31,6 +38,13 @@ def task_status(request, task_id):
             "result": result.result if result.status == "SUCCESS" else None,
         }
     )
+
+
+class SignupView(SuccessMessageMixin, CreateView):
+    template_name = "spotify_filter/signup.html"
+    success_url = reverse_lazy("spotify_filter:login")
+    form_class = UserRegisterForm
+    success_message = "Your profile was created successfully"
 
 
 class DashboardView(SingleTableMixin, FilterView):

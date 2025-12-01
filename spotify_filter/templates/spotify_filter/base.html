@@ -24,7 +24,12 @@
                     <li><a href="{% url 'spotify_filter:dashboard' %}">Dashboard</a></li>
                     <li><a href="{% url 'spotify_filter:importing' %}">Import Data</a></li>
                     <li><a>Hello, {{ user.username }}</a></li>
-                    <li><a href="{% url 'spotify_filter:logout' %}">Logout</a></li>
+                    <li>
+                        <form action="{% url 'spotify_filter:logout' %}" method="post" class="logout-form">
+                        {% csrf_token %} 
+                        <button type="submit">Logout</button>
+    </form>
+                    </li>
                 {% else %}
                     <li><a href="{% url 'spotify_filter:login' %}">Login</a></li>
                     <li><a href="{% url 'spotify_filter:signup' %}">Sign Up</a></li>
