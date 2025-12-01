@@ -7,7 +7,7 @@ class Artist(models.Model):
     """Model representing a musical artist."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    spotify_id = models.CharField(max_length=50, unique=True)
+    spotify_id = models.CharField(max_length=50)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
     image = models.URLField(max_length=500, blank=True, null=True)
     genres = models.ManyToManyField(
@@ -39,7 +39,7 @@ class Album(models.Model):
     """Model representing a musical album."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    spotify_id = models.CharField(max_length=50, unique=True)
+    spotify_id = models.CharField(max_length=50)
     title = models.CharField(max_length=200)
     artists = models.ManyToManyField(
         "Artist",

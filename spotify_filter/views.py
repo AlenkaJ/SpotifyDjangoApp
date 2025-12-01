@@ -47,7 +47,7 @@ class SignupView(SuccessMessageMixin, CreateView):
     success_message = "Your profile was created successfully"
 
 
-class DashboardView(SingleTableMixin, FilterView):
+class DashboardView(LoginRequiredMixin, SingleTableMixin, FilterView):
     """
     Dashboard view to display artists or albums with filtering and table representation.
     """
@@ -58,8 +58,8 @@ class DashboardView(SingleTableMixin, FilterView):
         """Provide the appropriate queryset based on the view mode."""
         view_mode = self.request.GET.get("view", "artists")
         if view_mode == "albums":
-            Album.objects.all()
-        return Artist.objects.all()
+            Album.objects.filter(user=self.request.user)
+        return Artist.objects.filter(user=self.request.user)
 
     def get_filterset_class(self):
         """Provide the appropriate filterset class based on the view mode."""
@@ -80,9 +80,9 @@ class DashboardView(SingleTableMixin, FilterView):
         kwargs = super().get_filterset_kwargs(filterset_class)
         view_mode = self.request.GET.get("view", "artists")
         if view_mode == "albums":
-            kwargs["queryset"] = Album.objects.all()
+            kwargs["queryset"] = Album.objects.filter(user=self.request.user)
         else:
-            kwargs["queryset"] = Artist.objects.all()
+            kwargs["queryset"] = Artist.objects.filter(user=self.request.user)
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -92,7 +92,7 @@ class DashboardView(SingleTableMixin, FilterView):
         return context
 
 
-class ArtistDetailView(generic.DetailView):
+class ArtistDetailView(LoginRequiredMixin, generic.DetailView):
     """View to display detailed information about a specific artist."""
 
     model = Artist
@@ -100,10 +100,10 @@ class ArtistDetailView(generic.DetailView):
 
     def get_queryset(self):
         """Return the queryset for artists."""
-        return Artist.objects.all()
+        return Artist.objects.filter(user=self.request.user)
 
 
-class AlbumDetailView(generic.DetailView):
+class AlbumDetailView(LoginRequiredMixin, generic.DetailView):
     """View to display detailed information about a specific album."""
 
     model = Album
@@ -111,4 +111,4 @@ class AlbumDetailView(generic.DetailView):
 
     def get_queryset(self):
         """Return the queryset for albums."""
-        return Album.objects.all()
+        return Album.objects.filter(user=self.request.user)
