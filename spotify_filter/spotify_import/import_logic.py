@@ -1,8 +1,13 @@
 import logging
+import os
+from datetime import timedelta
+from django.utils import timezone
 
+import spotipy
 from dateutil import parser
+from spotipy.oauth2 import SpotifyOAuth
 
-from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
+from spotify_filter.models import Album, AlbumTrack, Artist, Genre, SpotifyToken, Track
 
 from .api import SpotifyImporter
 
@@ -19,7 +24,30 @@ def import_from_spotify(user, importer=None):
     """
 
     if importer is None:
-        importer = SpotifyImporter(user)
+        # Get user's stored tokens
+        try:
+            spotify_token = SpotifyToken.objects.get(user=user)
+
+            # Refresh token if expired
+            if spotify_token.is_expired():
+                sp_oauth = SpotifyOAuth(
+                    client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+                    client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+                    redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+                )
+                token_info = sp_oauth.refresh_access_token(spotify_token.refresh_token)
+                spotify_token.access_token = token_info["access_token"]
+                spotify_token.expires_at = timezone.now() + timedelta(
+                    seconds=token_info["expires_in"]
+                )
+                spotify_token.save()
+
+            # Create Spotify client with user's token
+            sp = spotipy.Spotify(auth=spotify_token.access_token)
+            importer = SpotifyImporter(user, sp=sp)
+
+        except SpotifyToken.DoesNotExist:
+            raise Exception("User hasn't connected their Spotify account")
 
     stats = {
         "albums_processed": 0,

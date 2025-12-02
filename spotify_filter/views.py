@@ -1,25 +1,75 @@
+import os
+from datetime import timedelta
+
 from celery.result import AsyncResult
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.views import generic
-from django.urls import reverse_lazy
-from django_filters.views import FilterView
-from django_tables2.views import SingleTableMixin
-from django.views.generic.edit import CreateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.views import generic
+from django.views.generic.edit import CreateView
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
+from spotipy.oauth2 import SpotifyOAuth
 
 from .filters import AlbumFilter, ArtistFilter
-from .models import Album, Artist
+from .forms import UserRegisterForm
+from .models import Album, Artist, SpotifyToken
 from .tables import AlbumTable, ArtistTable
 from .tasks import import_spotify_data_task
-from .forms import UserRegisterForm
 
 
 def index(request):
     """View for the index page."""
     return render(request, "spotify_filter/index.html")
+
+
+@login_required
+def spotify_connect(request):
+    """Redirect user to Spotify for authorization"""
+    sp_oauth = SpotifyOAuth(
+        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+        scope="user-library-read",
+        cache_path=None,  # Don't cache locally
+    )
+
+    auth_url = sp_oauth.get_authorize_url()
+    return redirect(auth_url)
+
+
+@login_required
+def spotify_callback(request):
+    """Handle Spotify OAuth callback"""
+    code = request.GET.get("code")
+
+    sp_oauth = SpotifyOAuth(
+        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+        scope="user-library-read",
+        cache_path=None,
+    )
+
+    token_info = sp_oauth.get_access_token(code, check_cache=False)
+
+    # Save tokens
+    SpotifyToken.objects.update_or_create(
+        user=request.user,
+        defaults={
+            "access_token": token_info["access_token"],
+            "refresh_token": token_info["refresh_token"],
+            "expires_at": timezone.now() + timedelta(seconds=token_info["expires_in"]),
+        },
+    )
+
+    # Start import
+    task = import_spotify_data_task.delay(request.user.id)
+    return render(request, "spotify_filter/importing.html", {"task_id": task.id})
 
 
 @login_required

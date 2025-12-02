@@ -1,5 +1,5 @@
-from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.urls import path
 
 from . import views
 
@@ -20,6 +20,8 @@ urlpatterns = [
     path(
         "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"
     ),
+    path("spotify/connect/", views.spotify_connect, name="spotify_connect"),
+    path("spotify/callback/", views.spotify_callback, name="spotify_callback"),
     path("importing/", views.importing, name="importing"),
     path("tasks/status/<str:task_id>/", views.task_status, name="task_status"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),

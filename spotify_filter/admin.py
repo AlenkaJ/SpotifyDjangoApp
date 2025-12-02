@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Album, Artist, Track
+from .models import Album, Artist, Track, SpotifyToken
 
 
 class ArtistAdmin(admin.ModelAdmin):
@@ -26,6 +26,12 @@ class TrackAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ("user", "expires_at")
+    search_fields = ["user"]
+
+
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Album, AlbumAdmin)
 admin.site.register(Track, TrackAdmin)
+admin.site.register(SpotifyToken, TokenAdmin)

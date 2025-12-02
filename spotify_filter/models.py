@@ -1,6 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 
 
 class Artist(models.Model):
@@ -100,6 +100,12 @@ class SpotifyToken(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=255)
-    refresh_token = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=500)
+    refresh_token = models.CharField(max_length=500)
     expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"Spotify token for {self.user.username}"
