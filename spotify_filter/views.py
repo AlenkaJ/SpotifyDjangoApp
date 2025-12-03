@@ -13,11 +13,11 @@ from django.views import generic
 from django.views.generic.edit import CreateView
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
-from spotipy.oauth2 import SpotifyOAuth
 
 from .filters import AlbumFilter, ArtistFilter
 from .forms import UserRegisterForm
 from .models import Album, Artist, SpotifyToken
+from .spotify_import.api import get_spotify_oauth
 from .tables import AlbumTable, ArtistTable
 from .tasks import import_spotify_data_task
 
@@ -30,14 +30,7 @@ def index(request):
 @login_required
 def spotify_connect(request):
     """Redirect user to Spotify for authorization"""
-    sp_oauth = SpotifyOAuth(
-        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
-        scope="user-library-read",
-        cache_path=None,  # Don't cache locally
-    )
-
+    sp_oauth = get_spotify_oauth()
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
@@ -47,14 +40,7 @@ def spotify_callback(request):
     """Handle Spotify OAuth callback"""
     code = request.GET.get("code")
 
-    sp_oauth = SpotifyOAuth(
-        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
-        scope="user-library-read",
-        cache_path=None,
-    )
-
+    sp_oauth = get_spotify_oauth()
     token_info = sp_oauth.get_access_token(code, check_cache=False)
 
     # Save tokens

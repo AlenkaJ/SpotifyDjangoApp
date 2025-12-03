@@ -9,8 +9,8 @@
     <a href="{% url 'spotify_filter:spotify_connect' %}" class="btn btn-success btn-lg">
         Connect Spotify & Import Data
     </a>
+    <p><a href="{% url 'spotify_filter:dashboard' %}" class="btn btn-primary">Go to an existing dashboard</a></p>
 {% else %}
     <p>Please <a href="{% url 'spotify_filter:login' %}">log in</a> to connect your Spotify account.</p>
 {% endif %}
-<p><a href="{% url 'spotify_filter:dashboard' %}" class="btn btn-primary">Go to an existing dashboard</a></p>
 {% endblock %}

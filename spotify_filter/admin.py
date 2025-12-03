@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Album, Artist, Track, SpotifyToken
+from .models import Album, Artist, SpotifyToken, Track
 
 
 class ArtistAdmin(admin.ModelAdmin):

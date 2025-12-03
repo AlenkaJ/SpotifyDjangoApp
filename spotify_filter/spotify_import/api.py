@@ -1,14 +1,30 @@
 import logging
+import os
 import time
+from datetime import timedelta
 from itertools import count
 from math import ceil, inf
 
 import requests
 import spotipy
+from django.utils import timezone
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 
+from ..models import SpotifyToken
+
 logger = logging.getLogger(__name__)
+
+
+def get_spotify_oauth():
+    """Create and return a SpotifyOAuth instance with app credentials"""
+    return SpotifyOAuth(
+        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+        scope="user-library-read",
+        cache_path=None,  # Don't cache locally
+    )
 
 
 class SpotifyImporter:
@@ -21,9 +37,31 @@ class SpotifyImporter:
         self.retry_delay = retry_delay
         if sp is not None:
             self.sp = sp
+        elif user is not None:
+            try:
+                spotify_token = SpotifyToken.objects.get(user=user)
+
+                # Refresh token if expired
+                if spotify_token.is_expired():
+                    sp_oauth = get_spotify_oauth()
+                    token_info = sp_oauth.refresh_access_token(
+                        spotify_token.refresh_token
+                    )
+                    spotify_token.access_token = token_info["access_token"]
+                    spotify_token.expires_at = timezone.now() + timedelta(
+                        seconds=token_info["expires_in"]
+                    )
+                    spotify_token.save()
+
+                # Create Spotify client with user's token
+                self.sp = spotipy.Spotify(auth=spotify_token.access_token)
+
+            except SpotifyToken.DoesNotExist:
+                raise Exception("User hasn't connected their Spotify account")
         else:
+            # Fallback on legacy single-user mode in case no spotipy or user are passed
             if scopes is None:
-                scopes = ["user-library-read", "playlist-modify-private"]
+                scopes = ["user-library-read"]
             try:
                 self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
             except spotipy.exceptions.SpotifyException as e:
