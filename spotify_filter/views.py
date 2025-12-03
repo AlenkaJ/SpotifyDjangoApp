@@ -1,6 +1,3 @@
-import os
-from datetime import timedelta
-
 from celery.result import AsyncResult
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,7 +5,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import CreateView
 from django_filters.views import FilterView
@@ -44,14 +40,15 @@ def spotify_callback(request):
     token_info = sp_oauth.get_access_token(code, check_cache=False)
 
     # Save tokens
-    SpotifyToken.objects.update_or_create(
+    token, _ = SpotifyToken.objects.update_or_create(
         user=request.user,
         defaults={
             "access_token": token_info["access_token"],
             "refresh_token": token_info["refresh_token"],
-            "expires_at": timezone.now() + timedelta(seconds=token_info["expires_in"]),
         },
     )
+    token.set_expiration(token_info["expires_in"])
+    token.save()
 
     # Start import
     task = import_spotify_data_task.delay(request.user.id)

@@ -1,13 +1,11 @@
 import logging
 import os
 import time
-from datetime import timedelta
 from itertools import count
 from math import ceil, inf
 
 import requests
 import spotipy
-from django.utils import timezone
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -48,9 +46,7 @@ class SpotifyImporter:
                         spotify_token.refresh_token
                     )
                     spotify_token.access_token = token_info["access_token"]
-                    spotify_token.expires_at = timezone.now() + timedelta(
-                        seconds=token_info["expires_in"]
-                    )
+                    spotify_token.set_expiration(token_info["expires_in"])
                     spotify_token.save()
 
                 # Create Spotify client with user's token

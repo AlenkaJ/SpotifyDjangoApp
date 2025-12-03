@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -103,6 +105,9 @@ class SpotifyToken(models.Model):
     access_token = models.CharField(max_length=500)
     refresh_token = models.CharField(max_length=500)
     expires_at = models.DateTimeField()
+
+    def set_expiration(self, expires_in_seconds: int):
+        self.expires_at = timezone.now() + timedelta(expires_in_seconds)
 
     def is_expired(self):
         return timezone.now() >= self.expires_at
