@@ -8,6 +8,7 @@ This web app loads the saved albums from your Spotify library and allows you to 
 
 ## Features
 
+- 🔐 User authentication via Spotify OAuth
 - 🎵 Explore all your saved albums and artists
 - ⚡ See which genres Spotify assigns them
 - 📊 Filter by artist name, album name, and/or genres
@@ -23,6 +24,7 @@ This web app loads the saved albums from your Spotify library and allows you to 
 
 ### Dashboard
 ![Dashboard Screenshot](imgs/dashboard_screenshot.png)
+![Dashboard Filtering Screenshot](imgs/filtering_screenshot.png)
 
 ### Artist Detail
 ![Artist Detail Screenshot](imgs/artist_screenshot.png)
@@ -51,11 +53,11 @@ cd SpotifyDjangoApp
 docker-compose up
 ```
 
-3. Visit `http://localhost:8000/spotify_filter/` and start importing your Spotify data!
+3. Visit `http://127.0.0.1:8000/spotify_filter/` and start importing your Spotify data!
 
 ## Usage
 
-Load the data by using the "Load Spotify" button. If you already did before and you are happy with the current state of the database contents, you can click "Go to an existing dashboard".
+Log in or create an account to be able to connect your Spotify data safely. Then, click "Connect Spotify & Import Data" button to get fresh data from your Spotify library. If you already did this before and you are happy with the current state of the database contents, you can click "Go to an existing dashboard".
 When looking at the dashboard, you can use the bars at the top to filter the artists, albums, and genres by name. You can filter for multiple genres at the same time - just divide them by "," or " ".
 You can also look at the details of each artist and album using their link.
 
@@ -71,7 +73,6 @@ The project uses GitHub Actions for automated testing and code quality checks (b
 
 ## Future Improvements
 
-- [ ] More filtering and sorting options (date added, released date, number of tracks, popularity, etc.)
 - [ ] Provide more insights about the Spotify library (statistics, graphs)
 - [ ] Include data from more sources, starting with LastFM tags
 - [ ] Create a similarity metric between the artists for search and visualization purposes

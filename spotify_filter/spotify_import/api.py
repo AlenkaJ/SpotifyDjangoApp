@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from itertools import count
 from math import ceil, inf
@@ -8,21 +9,65 @@ import spotipy
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 
+from ..models import SpotifyToken
+
 logger = logging.getLogger(__name__)
+
+
+def get_spotify_oauth():
+    """Create and return a SpotifyOAuth instance with app credentials"""
+    return SpotifyOAuth(
+        client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
+        scope="user-library-read",
+        cache_path=None,  # Don't cache locally
+    )
 
 
 class SpotifyImporter:
     """Class to import data from Spotify API."""
 
-    def __init__(self, sp=None, scopes=None, max_retries=3, retry_delay=2):
+    def __init__(self, user, sp=None, scopes=None, max_retries=3, retry_delay=2):
+        """Initialize the SpotifyImporter.
+        Args:
+            user (User): The user for whom to import data.
+            sp (spotipy.Spotify, optional): An authenticated Spotipy client.
+                If None, a new client will be created using the user's token.
+            scopes (list, optional): List of scopes for Spotify OAuth.
+                Used only if sp is None and user is None.
+            max_retries (int): Maximum number of retries for API calls.
+            retry_delay (int): Delay between retries in seconds.
+        """
         load_dotenv()
+        self.user = user
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         if sp is not None:
             self.sp = sp
+        elif user is not None:
+            try:
+                spotify_token = SpotifyToken.objects.get(user=user)
+
+                # Refresh token if expired
+                if spotify_token.is_expired():
+                    sp_oauth = get_spotify_oauth()
+                    token_info = sp_oauth.refresh_access_token(
+                        spotify_token.refresh_token
+                    )
+                    spotify_token.access_token = token_info["access_token"]
+                    spotify_token.set_expiration(token_info["expires_in"])
+                    spotify_token.save()
+
+                # Create Spotify client with user's token
+                self.sp = spotipy.Spotify(auth=spotify_token.access_token)
+
+            except SpotifyToken.DoesNotExist as exc:
+                raise Exception("User hasn't connected their Spotify account") from exc
         else:
+            # Fallback on legacy single-user mode in case no spotipy or user are passed
             if scopes is None:
-                scopes = ["user-library-read", "playlist-modify-private"]
+                scopes = ["user-library-read"]
             try:
                 self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scopes))
             except spotipy.exceptions.SpotifyException as e:
@@ -123,7 +168,7 @@ class SpotifyImporter:
 if __name__ == "__main__":
     import json
 
-    importer = SpotifyImporter()
+    importer = SpotifyImporter(user=None)
     retrieved_albums = importer.retrieve_albums(max_len=2)
     with open("albums2.json", "w", encoding="utf-8") as f:
         json.dump(retrieved_albums, f, indent=4)

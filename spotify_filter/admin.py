@@ -1,12 +1,12 @@
 from django.contrib import admin
 
-from .models import Album, Artist, Track
+from .models import Album, Artist, SpotifyToken, Track
 
 
 class ArtistAdmin(admin.ModelAdmin):
     """Admin representation for Artist model."""
 
-    list_display = ("name", "spotify_id")
+    list_display = ("name", "spotify_id", "user_id")
     list_filter = ["genres"]
     search_fields = ["name"]
 
@@ -14,7 +14,7 @@ class ArtistAdmin(admin.ModelAdmin):
 class AlbumAdmin(admin.ModelAdmin):
     """Admin representation for Album model."""
 
-    list_display = ("title", "added_at", "release_date", "popularity")
+    list_display = ("title", "added_at", "release_date", "popularity", "user_id")
     list_filter = ["release_date"]
     search_fields = ["title"]
 
@@ -26,6 +26,14 @@ class TrackAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+class TokenAdmin(admin.ModelAdmin):
+    """Admin representation for SpotifyToken model."""
+
+    list_display = ("user", "expires_at")
+    search_fields = ["user"]
+
+
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Album, AlbumAdmin)
 admin.site.register(Track, TrackAdmin)
+admin.site.register(SpotifyToken, TokenAdmin)

@@ -21,3 +21,22 @@ body {
 h1 {
   text-align: center;
 }
+
+.navbar-nav .logout-form {
+    padding: 15px;
+    margin: 0;
+}
+
+.navbar-nav .logout-form button {
+    background: none;
+    border: none;
+    color: #777;
+    padding: 0;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.navbar-nav .logout-form button:hover {
+    color: #333;
+    text-decoration: none;
+}

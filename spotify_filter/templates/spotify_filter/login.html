@@ -1,0 +1,17 @@
+{% extends "spotify_filter/base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="container">
+    <h2>Log In</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+    
+    <p>Lost password? <a href="{% url 'spotify_filter:password_reset' %}">Reset it here</a></p>
+    <p>Don't have an account? <a href="{% url 'spotify_filter:signup' %}">Sign up here</a></p>
+</div>
+{% endblock %}

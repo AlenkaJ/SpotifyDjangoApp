@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Spotify Filter</title>
-    <meta charset="UTF-8" />
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'spotify_filter/detail_styles.css' %}">
-    <link rel="stylesheet" href="{% static 'spotify_filter/styles.css' %}">
-  </head>
-<body>
-<div><a href="{% url 'spotify_filter:importing' %}">Load Spotify</a></div>
-<div><a href="{% url 'spotify_filter:dashboard' %}">Go to an existing dashboard</a></div>
-</body>
+{% extends "spotify_filter/base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Welcome to Spotify Library</h1>
+{% if user.is_authenticated %}
+    <a href="{% url 'spotify_filter:spotify_connect' %}" class="btn btn-success btn-lg">
+        Connect Spotify & Import Data
+    </a>
+    <p><a href="{% url 'spotify_filter:dashboard' %}" class="btn btn-primary">Go to an existing dashboard</a></p>
+{% else %}
+    <p>Please <a href="{% url 'spotify_filter:login' %}">log in</a> to connect your Spotify account.</p>
+{% endif %}
+{% endblock %}
