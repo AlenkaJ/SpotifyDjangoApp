@@ -9,17 +9,22 @@ from .api import SpotifyImporter
 logger = logging.getLogger(__name__)
 
 
-def import_from_spotify(user, importer=None):
+def import_from_spotify(user=None, importer=None):
     """Import data from Spotify into the local database.
     Args:
+        user (User, optional): The user for whom to import data.
+         If None, the importer must have a user set.
         importer (SpotifyImporter, optional): An instance of SpotifyImporter.
             If None, a new instance will be created.
     Returns:
         dict: A dictionary containing statistics about the import process.
     """
 
+    # user is required if no importer is provided for sake of testing
     if importer is None:
         importer = SpotifyImporter(user=user)
+    if user is not None:
+        importer.user = user
 
     stats = {
         "albums_processed": 0,

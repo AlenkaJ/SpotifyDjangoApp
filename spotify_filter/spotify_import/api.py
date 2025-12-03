@@ -29,6 +29,16 @@ class SpotifyImporter:
     """Class to import data from Spotify API."""
 
     def __init__(self, user, sp=None, scopes=None, max_retries=3, retry_delay=2):
+        """Initialize the SpotifyImporter.
+        Args:
+            user (User): The user for whom to import data.
+            sp (spotipy.Spotify, optional): An authenticated Spotipy client.
+                If None, a new client will be created using the user's token.
+            scopes (list, optional): List of scopes for Spotify OAuth.
+                Used only if sp is None and user is None.
+            max_retries (int): Maximum number of retries for API calls.
+            retry_delay (int): Delay between retries in seconds.
+        """
         load_dotenv()
         self.user = user
         self.max_retries = max_retries

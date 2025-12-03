@@ -426,7 +426,7 @@ class ImportSpotifyTests(TestCase):
         mock_importer.retrieve_artists_by_id.return_value = self.two_artists
         mock_importer.user = user
 
-        stats = import_from_spotify(user.id, importer=mock_importer)
+        stats = import_from_spotify(user, importer=mock_importer)
 
         assert stats == {
             "albums_processed": 2,
@@ -465,7 +465,7 @@ class ImportSpotifyTests(TestCase):
         mock_importer.retrieve_artists_by_id.return_value = []
 
         user = get_user_model().objects.create_user(username="testuser")
-        stats = import_from_spotify(user.id, importer=mock_importer)
+        stats = import_from_spotify(user, importer=mock_importer)
         assert stats == {
             "albums_processed": 0,
             "albums_failed": 1,
@@ -487,7 +487,7 @@ class ImportSpotifyTests(TestCase):
         ]
         mock_importer.user = user
 
-        stats = import_from_spotify(user.id, importer=mock_importer)
+        stats = import_from_spotify(user, importer=mock_importer)
         assert stats == {
             "albums_processed": 2,
             "albums_failed": 0,
@@ -561,3 +561,172 @@ class FilterTests(TestCase):
         assert album1 in results
         assert album2 in results
         assert album3 not in results
+
+
+class MultiUserDataIsolationTests(TestCase):
+    """Tests for multi-user data isolation and security."""
+
+    def setUp(self):
+        self.user1 = get_user_model().objects.create_user(
+            username="user1", password="pass1"
+        )
+        self.user2 = get_user_model().objects.create_user(
+            username="user2", password="pass2"
+        )
+
+    def test_user_can_only_see_own_artists(self):
+        """Test that artists are filtered by user in dashboard."""
+        Artist.objects.create(user=self.user1, spotify_id="1", name="Artist1")
+        Artist.objects.create(user=self.user2, spotify_id="2", name="Artist2")
+
+        self.client.login(username="user1", password="pass1")
+        response = self.client.get(reverse("spotify_filter:dashboard"))
+
+        self.assertContains(response, "Artist1")
+        self.assertNotContains(response, "Artist2")
+
+    def test_user_can_only_see_own_albums(self):
+        """Test that albums are filtered by user in dashboard."""
+        Album.objects.create(user=self.user1, spotify_id="a1", title="Album1")
+        Album.objects.create(user=self.user2, spotify_id="a2", title="Album2")
+
+        self.client.login(username="user1", password="pass1")
+        response = self.client.get(reverse("spotify_filter:dashboard") + "?view=albums")
+
+        self.assertContains(response, "Album1")
+        self.assertNotContains(response, "Album2")
+
+    def test_user_cannot_access_other_users_artist_detail(self):
+        """Test that users can't view other users' artist details."""
+        artist = Artist.objects.create(user=self.user2, spotify_id="1", name="Artist")
+
+        self.client.login(username="user1", password="pass1")
+        response = self.client.get(
+            reverse("spotify_filter:artist_detail", args=[artist.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_cannot_access_other_users_album_detail(self):
+        """Test that users can't view other users' album details."""
+        album = Album.objects.create(user=self.user2, spotify_id="a1", title="Album")
+
+        self.client.login(username="user1", password="pass1")
+        response = self.client.get(
+            reverse("spotify_filter:album_detail", args=[album.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_same_spotify_artist_for_different_users(self):
+        """Test that the same Spotify artist can exist for different users."""
+        Artist.objects.create(user=self.user1, spotify_id="artist1", name="Artist")
+        Artist.objects.create(user=self.user2, spotify_id="artist1", name="Artist")
+
+        self.assertEqual(Artist.objects.filter(spotify_id="artist1").count(), 2)
+
+    def test_same_spotify_album_for_different_users(self):
+        """Test that the same Spotify album can exist for different users."""
+        Album.objects.create(user=self.user1, spotify_id="album1", title="Album")
+        Album.objects.create(user=self.user2, spotify_id="album1", title="Album")
+
+        self.assertEqual(Album.objects.filter(spotify_id="album1").count(), 2)
+
+
+class AuthenticationRequirementTests(TestCase):
+    """Tests for authentication requirements on views."""
+
+    def test_dashboard_requires_login(self):
+        """Test that dashboard redirects to login if not authenticated."""
+        response = self.client.get(reverse("spotify_filter:dashboard"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/spotify_filter/login/", response.url)
+
+    def test_spotify_connect_requires_login(self):
+        """Test that spotify_connect requires authentication."""
+        response = self.client.get(reverse("spotify_filter:spotify_connect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/spotify_filter/login/", response.url)
+
+    def test_artist_detail_requires_login(self):
+        """Test that artist detail requires authentication."""
+        user = get_user_model().objects.create_user(username="testuser")
+        artist = Artist.objects.create(user=user, spotify_id="1", name="Artist")
+        response = self.client.get(
+            reverse("spotify_filter:artist_detail", args=[artist.pk])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/spotify_filter/login/", response.url)
+
+    def test_album_detail_requires_login(self):
+        """Test that album detail requires authentication."""
+        user = get_user_model().objects.create_user(username="testuser")
+        album = Album.objects.create(user=user, spotify_id="a1", title="Album")
+        response = self.client.get(
+            reverse("spotify_filter:album_detail", args=[album.pk])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/spotify_filter/login/", response.url)
+
+
+class MultiUserImportTests(TestCase):
+    """Tests for multi-user import functionality."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        with open("spotify_filter/tests/data/albums2.json", "r", encoding="utf-8") as f:
+            cls.two_albums = json.load(f)
+        with open(
+            "spotify_filter/tests/data/artists2.json", "r", encoding="utf-8"
+        ) as f:
+            cls.two_artists = json.load(f)
+
+    def test_import_assigns_data_to_correct_user(self):
+        """Test that imported data is assigned to the requesting user."""
+        user = get_user_model().objects.create_user(
+            username="testuser", password="testpass"
+        )
+
+        mock_importer = MagicMock()
+        mock_importer.retrieve_albums.return_value = self.two_albums
+        mock_importer.retrieve_artists_by_id.return_value = self.two_artists
+        mock_importer.user = user
+
+        import_from_spotify(user, importer=mock_importer)
+
+        # Check all albums belong to user
+        for album in Album.objects.all():
+            self.assertEqual(album.user, user)
+
+        # Check all artists belong to user
+        for artist in Artist.objects.all():
+            self.assertEqual(artist.user, user)
+
+    def test_import_for_different_users_creates_separate_data(self):
+        """Test that imports for different users create separate data."""
+        user1 = get_user_model().objects.create_user(username="user1")
+        user2 = get_user_model().objects.create_user(username="user2")
+
+        mock_importer = MagicMock()
+        mock_importer.retrieve_albums.return_value = self.two_albums
+        mock_importer.retrieve_artists_by_id.return_value = self.two_artists
+        mock_importer.user = None
+
+        # Import for user1
+        import_from_spotify(user1, importer=mock_importer)
+        user1_albums = Album.objects.filter(user=user1).count()
+        user1_artists = Artist.objects.filter(user=user1).count()
+
+        # Import for user2
+        import_from_spotify(user2, importer=mock_importer)
+        user2_albums = Album.objects.filter(user=user2).count()
+        user2_artists = Artist.objects.filter(user=user2).count()
+
+        # Both users should have the same count (separate data)
+        self.assertEqual(user1_albums, user2_albums)
+        self.assertEqual(user1_artists, user2_artists)
+
+        # Total should be double
+        self.assertEqual(Album.objects.count(), user1_albums + user2_albums)
+        self.assertEqual(Artist.objects.count(), user1_artists + user2_artists)
