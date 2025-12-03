@@ -52,8 +52,8 @@ class SpotifyImporter:
                 # Create Spotify client with user's token
                 self.sp = spotipy.Spotify(auth=spotify_token.access_token)
 
-            except SpotifyToken.DoesNotExist:
-                raise Exception("User hasn't connected their Spotify account")
+            except SpotifyToken.DoesNotExist as exc:
+                raise Exception("User hasn't connected their Spotify account") from exc
         else:
             # Fallback on legacy single-user mode in case no spotipy or user are passed
             if scopes is None:
@@ -158,7 +158,7 @@ class SpotifyImporter:
 if __name__ == "__main__":
     import json
 
-    importer = SpotifyImporter()
+    importer = SpotifyImporter(user=None)
     retrieved_albums = importer.retrieve_albums(max_len=2)
     with open("albums2.json", "w", encoding="utf-8") as f:
         json.dump(retrieved_albums, f, indent=4)

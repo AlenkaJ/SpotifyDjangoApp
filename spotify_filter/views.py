@@ -74,6 +74,8 @@ def task_status(request, task_id):
 
 
 class SignupView(SuccessMessageMixin, CreateView):
+    """View for user signup/registration."""
+
     template_name = "spotify_filter/signup.html"
     success_url = reverse_lazy("spotify_filter:login")
     form_class = UserRegisterForm

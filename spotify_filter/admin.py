@@ -27,6 +27,8 @@ class TrackAdmin(admin.ModelAdmin):
 
 
 class TokenAdmin(admin.ModelAdmin):
+    """Admin representation for SpotifyToken model."""
+
     list_display = ("user", "expires_at")
     search_fields = ["user"]
 

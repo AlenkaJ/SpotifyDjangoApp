@@ -2,7 +2,7 @@ import logging
 
 from dateutil import parser
 
-from spotify_filter.models import Album, AlbumTrack, Artist, Genre, SpotifyToken, Track
+from spotify_filter.models import Album, AlbumTrack, Artist, Genre, Track
 
 from .api import SpotifyImporter
 

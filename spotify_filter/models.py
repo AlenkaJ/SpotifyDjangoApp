@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 
@@ -8,7 +8,7 @@ from django.utils import timezone
 class Artist(models.Model):
     """Model representing a musical artist."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     spotify_id = models.CharField(max_length=50)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
     image = models.URLField(max_length=500, blank=True, null=True)
@@ -40,7 +40,7 @@ class Genre(models.Model):
 class Album(models.Model):
     """Model representing a musical album."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     spotify_id = models.CharField(max_length=50)
     title = models.CharField(max_length=200)
     artists = models.ManyToManyField(
@@ -101,16 +101,18 @@ class SpotifyToken(models.Model):
     Model storing information about spotify token for each user
     """
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     access_token = models.CharField(max_length=500)
     refresh_token = models.CharField(max_length=500)
     expires_at = models.DateTimeField()
 
     def set_expiration(self, expires_in_seconds: int):
+        """Set the expiration time based on the current time and the given duration in seconds."""
         self.expires_at = timezone.now() + timedelta(expires_in_seconds)
 
     def is_expired(self):
+        """Check if the token is expired."""
         return timezone.now() >= self.expires_at
 
     def __str__(self):
-        return f"Spotify token for {self.user.username}"
+        return f"Spotify token for {self.user.username}"  # pylint: disable=no-member
