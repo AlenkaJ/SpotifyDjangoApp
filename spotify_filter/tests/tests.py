@@ -28,14 +28,18 @@ class AlbumModelTests(TestCase):
             total_tracks=10,
             release_date="2023-01-01",
             popularity=50,
-            album_cover="http://example.com/cover.jpg",
+            album_cover_large="http://example.com/cover1.jpg",
+            album_cover_medium="http://example.com/cover2.jpg",
+            album_cover_small="http://example.com/cover3.jpg",
         )
         self.assertEqual(album.spotify_id, "12345")
         self.assertEqual(album.title, "Test Album")
         self.assertEqual(album.total_tracks, 10)
         self.assertEqual(album.release_date, "2023-01-01")
         self.assertEqual(album.popularity, 50)
-        self.assertEqual(album.album_cover, "http://example.com/cover.jpg")
+        self.assertEqual(album.album_cover_large, "http://example.com/cover1.jpg")
+        self.assertEqual(album.album_cover_medium, "http://example.com/cover2.jpg")
+        self.assertEqual(album.album_cover_small, "http://example.com/cover3.jpg")
 
     def test_spotify_link_property(self):
         """Test the spotify_link property of the Album model."""
@@ -93,9 +97,15 @@ class ArtistModelTests(TestCase):
             user=get_user_model().objects.create_user(username="testuser"),
             spotify_id="a1",
             name="Artist One",
+            image_large="http://example.com/img1.jpg",
+            image_medium="http://example.com/img2.jpg",
+            image_small="http://example.com/img3.jpg",
         )
         self.assertEqual(artist.spotify_id, "a1")
         self.assertEqual(artist.name, "Artist One")
+        self.assertEqual(artist.image_large, "http://example.com/img1.jpg")
+        self.assertEqual(artist.image_medium, "http://example.com/img2.jpg")
+        self.assertEqual(artist.image_small, "http://example.com/img3.jpg")
 
     def test_spotify_link_property(self):
         """Test the spotify_link property of the Artist model."""
