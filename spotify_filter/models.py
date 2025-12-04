@@ -11,7 +11,9 @@ class Artist(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     spotify_id = models.CharField(max_length=50)
     name = models.CharField(max_length=200, verbose_name="Artist Name")
-    image = models.URLField(max_length=500, blank=True, null=True)
+    image_large = models.URLField(max_length=500, blank=True, null=True)
+    image_medium = models.URLField(max_length=500, blank=True, null=True)
+    image_small = models.URLField(max_length=500, blank=True, null=True)
     genres = models.ManyToManyField(
         "Genre", related_name="artists", verbose_name="Genres"
     )
@@ -52,7 +54,9 @@ class Album(models.Model):
     release_date = models.DateField(default=timezone.now)
     added_at = models.DateTimeField(default=timezone.now)
     popularity = models.IntegerField(default=0)
-    album_cover = models.URLField(max_length=500, blank=True, null=True)
+    album_cover_large = models.URLField(max_length=500, blank=True, null=True)
+    album_cover_medium = models.URLField(max_length=500, blank=True, null=True)
+    album_cover_small = models.URLField(max_length=500, blank=True, null=True)
 
     class Meta:
         unique_together = ["user", "spotify_id"]

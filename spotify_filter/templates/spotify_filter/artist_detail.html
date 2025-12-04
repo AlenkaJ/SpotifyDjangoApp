@@ -28,8 +28,8 @@
 {% endif %}
 
 <p>Listen on Spotify: <a href="https://open.spotify.com/artist/{{ artist.spotify_id }}" target="_blank">Artist's page</a></p>
-{% if artist.image %}
-  <img src="{{ artist.image }}" alt="Artist Image" width="640" height="640"/>
+{% if artist.image_large %}
+  <img src="{{ artist.image_large }}" alt="Artist Image" width="640" height="640", style="object-fit: cover;"/>
 {% endif %}
 
 </div>

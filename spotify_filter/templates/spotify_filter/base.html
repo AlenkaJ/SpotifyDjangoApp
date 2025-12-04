@@ -22,7 +22,7 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'spotify_filter:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'spotify_filter:importing' %}">Import Data</a></li>
+                    <li><a href="{% url 'spotify_filter:spotify_connect' %}">Import Data</a></li>
                     <li><a>Hello, {{ user.username }}</a></li>
                     <li>
                         <form action="{% url 'spotify_filter:logout' %}" method="post" class="logout-form">
