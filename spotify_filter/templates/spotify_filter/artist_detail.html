@@ -27,7 +27,7 @@
 </ul>
 {% endif %}
 
-<p>Listen on Spotify: <a href="https://open.spotify.com/artist/{{ artist.spotify_id }}" target="_blank">Artist's page</a></p>
+<p>Listen on Spotify: <a href="https://open.spotify.com/artist/{{ artist.spotify_id }}" target="_blank">Artist's page</a>, <a href="spotify:artist:{{ artist.spotify_id }}" target="_blank">Open in app</a></p>
 {% if artist.image_large %}
   <img src="{{ artist.image_large }}" alt="Artist Image" width="640" height="640", style="object-fit: cover;"/>
 {% endif %}
