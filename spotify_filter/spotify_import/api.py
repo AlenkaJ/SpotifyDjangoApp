@@ -56,7 +56,9 @@ class SpotifyImporter:
                         spotify_token.refresh_token
                     )
                     spotify_token.access_token = token_info["access_token"]
-                    spotify_token.set_expiration(token_info["expires_in"])
+                    spotify_token.expires_at = spotify_token.compute_expiration(
+                        token_info["expires_in"]
+                    )
                     spotify_token.save()
 
                 # Create Spotify client with user's token

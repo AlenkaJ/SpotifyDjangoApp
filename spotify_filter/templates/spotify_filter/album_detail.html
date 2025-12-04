@@ -20,10 +20,10 @@
 <p>Release date: {{ album.release_date }}</p>
 <p>Added at: {{ album.added_at }}</p>
 <p>Popularity: {{ album.popularity }}</p>
-<p>Listen on Spotify: <a href="https://open.spotify.com/album/{{ album.spotify_id }}" target="_blank">Open Album</a></p>
+<p>Listen on Spotify: <a href="https://open.spotify.com/album/{{ album.spotify_id }}" target="_blank">Open in browser</a>, <a href="spotify:album:{{ album.spotify_id }}" target="_blank">Open in app</a></p>
 
-{% if album.album_cover %}
-  <img src="{{ album.album_cover }}" alt="Album Art" width="640" height="640"/>
+{% if album.album_cover_large %}
+  <img src="{{ album.album_cover_large }}" alt="Album Art" width="640" height="640", style="object-fit: cover;"/>
 {% endif %}
 
 <h2>Tracks:</h2>

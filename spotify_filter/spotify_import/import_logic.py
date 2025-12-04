@@ -46,6 +46,7 @@ def import_albums(importer, stats):
     albums = importer.retrieve_albums()
     for album_entry in albums:
         album_data = album_entry["album"]
+        images = album_data.get("images", [])
         try:
             album_obj, album_created = Album.objects.get_or_create(
                 user=importer.user,
@@ -56,11 +57,10 @@ def import_albums(importer, stats):
                     "release_date": parser.parse(album_data["release_date"]),
                     "added_at": parser.parse(album_entry["added_at"]),
                     "popularity": int(album_data["popularity"]),
-                    # takes the first image url,
-                    # seems to be the one with the highest resolution
-                    "album_cover": (
-                        album_data["images"][0]["url"] if album_data["images"] else None
-                    ),
+                    # images are sorted from largest to smallest
+                    "album_cover_large": images[0]["url"] if len(images) > 0 else None,
+                    "album_cover_medium": images[1]["url"] if len(images) > 1 else None,
+                    "album_cover_small": images[2]["url"] if len(images) > 2 else None,
                 },
             )
             if not album_created:
@@ -132,9 +132,10 @@ def update_artists(importer, stats):
     ):
         try:
             artist_obj = Artist.objects.get(spotify_id=sp_id, user=importer.user)
-            artist_obj.image = (
-                artist_data["images"][0]["url"] if artist_data["images"] else None
-            )
+            images = artist_data.get("images", [])
+            artist_obj.image_large = images[0]["url"] if len(images) > 0 else None
+            artist_obj.image_medium = images[1]["url"] if len(images) > 1 else None
+            artist_obj.image_small = images[2]["url"] if len(images) > 2 else None
             artist_obj.save()
             for genre_name in artist_data["genres"]:
                 genre_obj, _ = Genre.objects.get_or_create(name=genre_name)

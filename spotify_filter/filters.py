@@ -55,4 +55,4 @@ class AlbumFilter(FilterSet):
         """Meta class for AlbumFilter."""
 
         model = Album
-        fields = ["album_name", "artist_name"]
+        fields = ["artist_name", "album_name"]

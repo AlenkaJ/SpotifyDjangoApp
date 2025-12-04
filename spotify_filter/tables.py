@@ -8,6 +8,7 @@ from .models import Album, Artist
 class ArtistTable(tables.Table):
     """Table representation for Artist model."""
 
+    image_small = tables.Column(verbose_name="")
     albums = tables.Column(verbose_name="Albums")
 
     class Meta:
@@ -16,10 +17,23 @@ class ArtistTable(tables.Table):
         model = Artist
         template_name = "django_tables2/bootstrap.html"
         fields = (
+            "image_small",
             "name",
             "albums",
             "genres",
         )
+
+    def render_image_small(self, record):
+        """Render the artist image."""
+        if record.image_small:
+            return format_html(
+                (
+                    '<img src="{}" width="64" height="64" '
+                    'style="border-radius: 4px; object-fit: cover;">'
+                ),
+                record.image_small,
+            )
+        return ""
 
     def render_name(self, value, record):
         """Render the artist name as a link to the artist detail page."""
@@ -50,6 +64,7 @@ class ArtistTable(tables.Table):
 class AlbumTable(tables.Table):
     """Table representation for Album model."""
 
+    album_cover_small = tables.Column(verbose_name="Cover")
     artists = tables.Column(verbose_name="Artists")
 
     class Meta:
@@ -58,6 +73,7 @@ class AlbumTable(tables.Table):
         model = Album
         template_name = "django_tables2/bootstrap.html"
         fields = (
+            "album_cover_small",
             "title",
             "artists",
             "total_tracks",
@@ -65,6 +81,18 @@ class AlbumTable(tables.Table):
             "popularity",
             "added_at",
         )
+
+    def render_album_cover_small(self, record):
+        """Render the album cover image."""
+        if record.album_cover_small:
+            return format_html(
+                (
+                    '<img src="{}" width="64" height="64" '
+                    'style="border-radius: 4px; object-fit: cover;">'
+                ),
+                record.album_cover_small,
+            )
+        return ""
 
     def render_title(self, value, record):
         """Render the album title as a link to the album detail page."""
