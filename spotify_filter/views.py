@@ -45,9 +45,9 @@ def spotify_callback(request):
         defaults={
             "access_token": token_info["access_token"],
             "refresh_token": token_info["refresh_token"],
+            "expires_at": SpotifyToken.compute_expiration(token_info["expires_in"]),
         },
     )
-    token.set_expiration(token_info["expires_in"])
     token.save()
 
     # Start import

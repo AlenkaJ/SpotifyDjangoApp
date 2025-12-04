@@ -106,12 +106,13 @@ class SpotifyToken(models.Model):
     refresh_token = models.CharField(max_length=500)
     expires_at = models.DateTimeField()
 
-    def set_expiration(self, expires_in_seconds: int):
+    @classmethod
+    def compute_expiration(cls, expires_in_seconds: int):
         """
-        Set the expiration time based on the current time and
+        Compute the expiration time based on the current time and
         the given duration in seconds.
         """
-        self.expires_at = timezone.now() + timedelta(expires_in_seconds)
+        return timezone.now() + timedelta(seconds=expires_in_seconds)
 
     def is_expired(self):
         """Check if the token is expired."""
