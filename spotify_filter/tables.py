@@ -24,9 +24,13 @@ class ArtistTable(tables.Table):
         )
 
     def render_image_small(self, record):
+        """Render the artist image."""
         if record.image_small:
             return format_html(
-                '<img src="{}" width="64" height="64" style="border-radius: 4px; object-fit: cover;">',
+                (
+                    '<img src="{}" width="64" height="64" '
+                    'style="border-radius: 4px; object-fit: cover;">'
+                ),
                 record.image_small,
             )
         return ""
@@ -79,9 +83,13 @@ class AlbumTable(tables.Table):
         )
 
     def render_album_cover_small(self, record):
+        """Render the album cover image."""
         if record.album_cover_small:
             return format_html(
-                '<img src="{}" width="64" height="64" style="border-radius: 4px;">',
+                (
+                    '<img src="{}" width="64" height="64" '
+                    'style="border-radius: 4px; object-fit: cover;">'
+                ),
                 record.album_cover_small,
             )
         return ""
