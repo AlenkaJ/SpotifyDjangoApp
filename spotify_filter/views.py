@@ -52,14 +52,13 @@ def spotify_callback(request):
 
     # Start import
     task = import_spotify_data_task.delay(request.user.id)
-    return render(request, "spotify_filter/importing.html", {"task_id": task.id})
+    return redirect("spotify_filter:importing", task_id=task.id)
 
 
 @login_required
-def importing(request):
+def importing(request, task_id):
     """View to start the Spotify data import process."""
-    task = import_spotify_data_task.delay(request.user.id)
-    return render(request, "spotify_filter/importing.html", {"task_id": task.id})
+    return render(request, "spotify_filter/importing.html", {"task_id": task_id})
 
 
 def task_status(request, task_id):

@@ -22,7 +22,7 @@ urlpatterns = [
     ),
     path("spotify/connect/", views.spotify_connect, name="spotify_connect"),
     path("spotify/callback/", views.spotify_callback, name="spotify_callback"),
-    path("importing/", views.importing, name="importing"),
+    path("importing/<str:task_id>/", views.importing, name="importing"),
     path("tasks/status/<str:task_id>/", views.task_status, name="task_status"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     path("artist/<str:pk>/", views.ArtistDetailView.as_view(), name="artist_detail"),
