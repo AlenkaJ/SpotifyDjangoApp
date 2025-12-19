@@ -300,13 +300,21 @@ class ImportingViewTests(TestCase):
 
     def test_importing_view_status_code(self):
         """Test that the importing view returns a 200 status code."""
-        response = self.client.get(reverse("spotify_filter:importing"))
+        task_id = "test-task-id-123"
+        response = self.client.get(reverse("spotify_filter:importing", args=[task_id]))
         self.assertEqual(response.status_code, 200)
 
     def test_importing_view_template(self):
         """Test that the importing view uses the correct template."""
-        response = self.client.get(reverse("spotify_filter:importing"))
+        task_id = "test-task-id-123"
+        response = self.client.get(reverse("spotify_filter:importing", args=[task_id]))
         self.assertTemplateUsed(response, "spotify_filter/importing.html")
+
+    def test_importing_view_has_task_id_in_context(self):
+        """Test that task_id is passed to template context."""
+        task_id = "test-task-id-123"
+        response = self.client.get(reverse("spotify_filter:importing", args=[task_id]))
+        self.assertEqual(response.context["task_id"], task_id)
 
 
 class ArtistDetailViewTests(TestCase):
